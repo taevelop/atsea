@@ -1,3 +1,5 @@
+import { normalizeSetting } from './limits.js';
+
 // v4.5.0 storage compatibility. Blocked/corrupt storage uses in-memory defaults.
 export function loadCounts(key, storage) {
   try { storage ??= globalThis.localStorage; const raw = JSON.parse(storage.getItem(key) || '{}'); const result = {};
@@ -7,7 +9,10 @@ export function loadCounts(key, storage) {
 }
 export function loadSliderValues(keys, storage) {
   try { storage ??= globalThis.localStorage; const raw = JSON.parse(storage.getItem('atsea.sliders') || '{}'); const result = {};
-    for (const key of keys) if (Number.isFinite(raw[key]) && raw[key]>=0) result[key]=raw[key];
+    for (const key of keys) if (Number.isFinite(raw[key])) {
+      const value = normalizeSetting(key, raw[key]);
+      if (value !== undefined) result[key] = value;
+    }
     return result;
   } catch { return {}; }
 }

@@ -1,4 +1,5 @@
 import { DATA } from './data.js';
+import { normalizeSetting, normalizePopulation } from './limits.js';
 
 const LURE = '#fff700', CHOMP = '#ff5f5f', ROD = '#ffaf00';
 const SPEED_DEFAULT = 20, GRACE = 21, HOLD_TIME = 84, HOOK_RATE = .70;
@@ -323,6 +324,7 @@ class Ocean {
       megalodon: 0,          // 처음에는 없다. 상어가 태어날 때 아주 드물게 온다
     };
     this.groups = {};
+    for (const kind of Object.keys(counts)) counts[kind] = normalizePopulation(kind, counts[kind]);
     for (const [kind, n] of Object.entries(counts)) {
       const sizes = DATA.sizes[SPECIES[kind].sizes];
       const fits = sizes.some(size => size.h <= Math.max(1, depth - 4) && size.w <= w);
@@ -363,12 +365,13 @@ class Ocean {
     };
   }
   setWeeds(n) {
+    n = normalizeSetting('seaweed', n, Math.max(2, Math.round(this.w / 12)));
     while (this.weeds.length > n) this.weeds.pop();
     while (this.weeds.length < n) this.weeds.push(this.makeWeed());
   }
   buildFloor(coralN, starN) {
-    const coral = coralN === undefined ? Math.max(2, Math.min(6, Math.round(this.w / 22))) : coralN;
-    const stars = starN === undefined ? Math.max(2, Math.min(6, Math.round(this.w / 24))) : starN;
+    const coral = normalizeSetting('coral', coralN, Math.max(2, Math.min(6, Math.round(this.w / 22))));
+    const stars = normalizeSetting('starfish', starN, Math.max(2, Math.min(6, Math.round(this.w / 24))));
     this.coralCount = coral;
     this.starCount = stars;
     const kinds = [].concat(Array(coral).fill("CORAL"), Array(stars).fill("STARFISH"));
@@ -469,13 +472,15 @@ class Ocean {
   }
   setCount(kind, n) {
     const list = this.groups[kind];
-    if (!list) return;
+    if (!Array.isArray(list)) return;
+    n = normalizePopulation(kind, n, this.seed[kind]);
     while (list.length > n) list.pop();
     while (list.length < n) list.push(new Being(kind, this.w, this.depth, true));
     if (kind === "shark") this.placeSharks();
   }
   setPopulation(n) {
-    const ratio = n / this.base;
+    n = normalizeSetting('fish', n, this.base);
+    const ratio = n / Math.max(1, this.base);
     for (const kind of Object.keys(this.groups)) {
       if (kind === "shark" || kind === "megalodon") continue;
       const seeded = this.seed[kind] || 0;

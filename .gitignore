@@ -12,3 +12,8 @@ playwright-report/
 /atsea2d/
 test-results-targeted/
 playwright-report-targeted/
+.env*
+.dev.vars*
+.wrangler/
+!.env.example
+!.dev.vars.example
