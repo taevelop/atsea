@@ -3,7 +3,7 @@ Run: blender --background --factory-startup --python scripts/assets/build_assets
 Downloaded sources are never modified. Adapted editable scenes go to assets/source/atsea-adapted.
 Coordinate contract after GLB export: +X forward, +Y up, +Z toward the viewer.
 """
-import bpy, bmesh, math, json, pathlib, random
+import bpy, bmesh, math, json, pathlib, random, sys
 from mathutils import Vector
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 OUT=ROOT/'public/models'; EDIT=ROOT/'assets/source/atsea-adapted'
@@ -11,6 +11,8 @@ OUT.mkdir(parents=True,exist_ok=True); EDIT.mkdir(parents=True,exist_ok=True)
 OLD=ROOT/'assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends'
 CUTE=ROOT/'assets/source/quaternius-cute-fish'
 manifest=[]
+args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
+ONLY=set(args[1:]) if args and args[0]=='--only' else set()
 
 def linear(v): return v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4
 def rgba(c):
@@ -92,6 +94,7 @@ def animate_shape(o,kind):
  bpy.context.scene.frame_set(0)
 
 def save(key,source,animated=True):
+ if ONLY and key not in ONLY:return
  bpy.context.preferences.filepaths.save_version=0
  sc=bpy.context.scene;sc.frame_set(0)
  # Preserve exactly the editable model scene, without render-only cameras or lights.
@@ -162,6 +165,7 @@ def add_source_details(key,arm):
 
 
 def source_fish(key,file,colors,cute=False,stretch=(1,1,1)):
+ if ONLY and key not in ONLY:return
  reset();path=(CUTE/file) if cute else (OLD/file)
  if cute:bpy.ops.import_scene.gltf(filepath=str(path))
  else:bpy.ops.wm.open_mainfile(filepath=str(path))
@@ -213,6 +217,8 @@ source_fish('shark','Shark.blend',{'Top':'#688b9b','Bottom':'#d0e2dc'})
 source_fish('megalodon','Shark.blend',{'Top':'#476572','Bottom':'#9bb7bb'},False,(1.15,1,.95))
 source_fish('angler','Anglerfish.glb',{'Anglerfish_Main':'#735065','Anglerfish_Light':'#ad718d','Anglerfish_Teeth':'#c4c8ba','Anglerfish_Fins':'#68506f','Light':'#80efec','Eyes':'#102532'},True,(.85,1,.9))
 source_fish('lantern','Fish1.blend',{'Bottom':'#87cad0','Top':'#285267','Fins':'#6ab7ba'},False,(.7,1.12,.7))
+source_fish('dolphin','Dolphin.blend',{'Top':'#8cc7da','Bottom':'#d1e2e5'})
+source_fish('whale','Whale.blend',{'Top':'#729ab9','Bottom':'#c0d3db'})
 
 reset()
 pink=mat('Jelly bell','#aaafd9',0,.32,.16);pale=mat('Jelly tentacles','#93d2dc',0,.44,.18);inner=mat('Jelly inner crown','#d3a3c3',0,.44,.14)
@@ -331,5 +337,11 @@ for v in o.data.vertices:
 for p in o.data.polygons:p.use_smooth=True
 o.data.materials.append(rockmat);save('rock','At Sea original Blender geometry',False)
 
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
+from new_species import build_new_species
+build_new_species(reset,mat,uv,tube,fin,eyes,combine,save,ONLY)
+if ONLY:
+ previous=json.loads((OUT/'manifest.json').read_text(encoding='utf-8'))
+ manifest=[entry for entry in previous if entry['key'] not in ONLY]+manifest
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 print('COMPLETE',len(manifest),'models',sum(m['bytes'] for m in manifest),'bytes',flush=True)

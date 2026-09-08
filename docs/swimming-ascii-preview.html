@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>At Sea · 헤엄치는 ASCII 샘플</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #061b29; color: #e2f3f4; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 16px; }
+  main { max-width: 1080px; margin: auto; }
+  h1 { font-size: clamp(24px, 4vw, 34px); margin: 0 0 12px; }
+  p { color: #aac7cf; line-height: 1.7; margin: 8px 0 20px; }
+  .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 24px 0; }
+  button, select { border: 1px solid #40616d; border-radius: 8px; background: #13313e; color: inherit; padding: 10px 16px; font: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid #83e1d7; outline-offset: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  article { background: #0b2534; border: 1px solid #214453; border-radius: 16px; padding: 20px; min-width: 0; }
+  h2 { font-size: 18px; margin: 0; }
+  article p { font-size: 14px; margin-bottom: 0; }
+  .stage { height: 270px; display: flex; align-items: center; justify-content: center; overflow: auto; }
+  pre { font-family: 'Courier New', monospace; font-size: 15px; line-height: 1.2; font-variant-ligatures: none; margin: 0; white-space: pre; }
+  #turtle { color: #b0dfad; }
+  #crab { color: #ffc199; }
+  #shrimp { color: #ffb5bf; }
+  #dolphin, #whale { color: #9bdeff; font-size: 13px; }
+  #oarfish { color: #e1cbdc; font-size: 12px; }
+  .stage--tall { height: 440px; }
+  @media (max-width: 740px) { .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 400px) { article { padding: 12px; } pre { font-size: 12px; } #dolphin, #whale { font-size: 9px; } .stage { height: 220px; } }
+</style>
+<main>
+  <h1>헤엄치는 ASCII 샘플</h1>
+  <p>거북·게·새우·돌고래·고래·산갈치 6종의 게임용 ASCII 수영 동작입니다.</p>
+  <div class="controls">
+    <button id="toggle" type="button">일시정지</button>
+    <button id="step" type="button">한 프레임씩 보기</button>
+    <label for="speed">재생 속도</label>
+    <select id="speed"><option value="0.5">느리게</option><option value="1" selected>보통</option><option value="1.5">빠르게</option></select>
+  </div>
+  <div class="grid">
+    <article><h2>거북</h2><div class="stage"><pre id="turtle" role="img" aria-label="앞뒤 지느러미를 젓는 바다거북"></pre></div><p>앞뒤 지느러미를 천천히 펼쳤다가 당깁니다.</p></article>
+    <article><h2>게</h2><div class="stage"><pre id="crab" role="img" aria-label="옆다리와 납작한 뒷다리를 움직이는 게"></pre></div><p>옆다리를 굽히고 뒷다리를 노처럼 젓습니다.</p></article>
+    <article><h2>새우</h2><div class="stage"><pre id="shrimp" role="img" aria-label="배 아래 다리를 순서대로 차는 새우"></pre></div><p>배 아래 다리를 앞에서 뒤로 차례로 움직입니다.</p></article>
+    <article><h2>돌고래</h2><div class="stage"><pre id="dolphin" role="img" aria-label="꼬리와 가슴지느러미를 움직이는 돌고래"></pre></div><p>상어와 비슷한 크기. 꼬리를 위아래로 젓고 가슴지느러미를 움직입니다.</p></article>
+    <article><h2>고래</h2><div class="stage"><pre id="whale" role="img" aria-label="꼬리와 넓은 가슴지느러미를 젓는 고래"></pre></div><p>상어보다 약 20% 크게, 느긋하게 헤엄칩니다.</p></article>
+    <article><h2>심해 산갈치</h2><div class="stage stage--tall"><pre id="oarfish" role="img" aria-label="머리를 위로 향한 세로 자세의 산갈치"></pre></div><p>세로 자세를 유지하고 긴 몸과 지느러미를 흔듭니다.</p></article>
+  </div>
+</main>
+<script>
+const creatures = [
+  {
+    "id": "turtle",
+    "interval": 260,
+    "frames": [
+      "        __                 __      \n       /  \\    _______    /  /     \n       \\   \\.-' __ __ '-./  /      \n        \\  / __/  V  \\__\\_/   ___  \n    <-----| /  \\__/ \\__/  |___/ o \\\n          | \\__/  \\__/ \\_|____   / \n           \\___\\__/__\\__/     '-'  \n          /  /       \\  \\          \n         /__/         \\__\\         ",
+      "                                   \n               _______             \n         ___.-' __ __ '-.___       \n        <__/ __/  V  \\__\\___> ___  \n    <-----| /  \\__/ \\__/  |___/ o \\\n          | \\__/  \\__/ \\_|____   / \n           \\___\\__/__\\__/     '-'  \n          <___/      \\___>         \n                                   ",
+      "                                   \n               _______             \n           .-' __ __ '-.           \n          / __/  V  \\__\\     ___   \n    <-----| /  \\__/ \\__/  |___/ o \\\n          | \\__/  \\__/ \\_|____   / \n           \\___\\__/__\\__/     '-'  \n           \\  \\      /  /          \n            \\__\\    /__/           ",
+      "                                   \n               _______             \n         ___.-' __ __ '-.___       \n        <__/ __/  V  \\__\\___> ___  \n    <-----| /  \\__/ \\__/  |___/ o \\\n          | \\__/  \\__/ \\_|____   / \n           \\___\\__/__\\__/     '-'  \n          <___/      \\___>         \n                                   "
+    ]
+  },
+  {
+    "id": "crab",
+    "interval": 180,
+    "frames": [
+      "  \\/         \\/  \n   \\  o   o  /   \n    \\_|___|_/    \n  ___/     \\___  \n <___|_____|___> \n    / /   \\ \\    \n  (__)     (__)  ",
+      "  \\/         \\/  \n   \\  o   o  /   \n    \\_|___|_/    \n   __/     \\__   \n  / _|_____|_ \\  \n / / /     \\ \\ \\ \n    (_)   (_)    ",
+      "  \\/         \\/  \n   \\  o   o  /   \n    \\_|___|_/    \n    _/     \\_    \n   / |_____| \\   \n  / /       \\ \\  \n(__)         (__)",
+      "  \\/         \\/  \n   \\  o   o  /   \n    \\_|___|_/    \n   __/     \\__   \n  / _|_____|_ \\  \n / / /     \\ \\ \\ \n    (_)   (_)    "
+    ]
+  },
+  {
+    "id": "shrimp",
+    "interval": 140,
+    "frames": [
+      "             __..---' \n         _.-'  __..--'\n     .--/--/--/ o___  \n    /  /  /  /    _/> \n    \\  \\  \\  \\_.-'    \n     '-.___ / / / /   \n    <__/   V V V V    ",
+      "             __..---' \n         _.-'  __..--'\n     .--/--/--/ o___  \n    /  /  /  /    _/> \n    \\  \\  \\  \\_.-'    \n     '-.___ / / | \\   \n    <__/   V V J  L   ",
+      "             __..---' \n         _.-'  __..--'\n     .--/--/--/ o___  \n    /  /  /  /    _/> \n    \\  \\  \\  \\_.-'    \n     '-.___ | \\ \\ |   \n    <__/   J  L L J   ",
+      "             __..---' \n         _.-'  __..--'\n     .--/--/--/ o___  \n    /  /  /  /    _/> \n    \\  \\  \\  \\_.-'    \n     '-.___ \\ | / /   \n    <__/    L J V V   "
+    ]
+  },
+  {
+    "id": "dolphin",
+    "interval": 220,
+    "frames": [
+      "                         _,                     \n                        / |                     \n                       /  /                     \n      __       __..---'   '---..__              \n      \\ '-._.-'                   '-._          \n       \\                             '-.        \n        >                          o    \\____   \n       /                              _      '-.\n      /_.---._           __           \\_______.'\n              '--.._____ \\         __.-'        \n                        \\ \\__..---'             \n                         \\  \\                   \n                          '._\\                  ",
+      "                         _,                     \n                        / |                     \n                       /  /                     \n               __..---'   '---..__              \n           _.-'                   '-._          \n     ___.-'                          '-.        \n     \\__                           o    \\____   \n     /  '                             _      '-.\n     '--..__             __           \\_______.'\n            '--.._______ \\         __.-'        \n                         \\\\__..---'             \n                          '---'                 \n                                                ",
+      "                         _,                     \n                        / |                     \n                       /  /                     \n               __..---'   '---..__              \n           _.-'                   '-._          \n         .'                          '-.        \n        /                          o    \\____   \n       /                              _      '-.\n      /      __          __           \\_______.'\n     /   _.-'  '--..____  \\         __.-'       \n    /_.-'              '--\\__..---'             \n                           '---->               \n                                                ",
+      "                         _,                     \n                        / |                     \n                       /  /                     \n               __..---'   '---..__              \n           _.-'                   '-._          \n     ___.-'                          '-.        \n     \\__                           o    \\____   \n     /  '                             _      '-.\n     '--..__             __           \\_______.'\n            '--.._______ \\         __.-'        \n                         \\\\__..---'             \n                          '---'                 \n                                                "
+    ]
+  },
+  {
+    "id": "whale",
+    "interval": 450,
+    "frames": [
+      "                                 __                     \n                             _.-'  '-.                  \n       __            __..---'         '---..___         \n       \\ '-.     _.-'                          '-.      \n        \\   '---'                                \\      \n         >                                      o \\     \n        /                                          |    \n       /_.--._                                  ___|    \n              '--..__                          /___/    \n                     '---..____      __      __..-'     \n                               '----.  \\----'           \n                                     \\  \\               \n                                      '._\\              \n                                                        ",
+      "                                 __                     \n                             _.-'  '-.                  \n       __            __..---'         '---..___         \n                 _.-'                          '-.      \n       __    _.-'                                 \\     \n       \\ '--'                                   o \\     \n        >                                          |    \n       /____                                    ___|    \n            '--..__                            /___/    \n                     '---..____      __      __..-'     \n                               '----.___\\---'           \n                                     '---'              \n                                                        \n                                                        ",
+      "                                 __                     \n                             _.-'  '-.                  \n       __            __..---'         '---..___         \n                 _.-'                          '-.      \n             _.-'                                 \\     \n          .-'                                   o \\     \n         /                                         |    \n        /                                       ___|    \n       /   _..--.__                             /___/   \n      /_.-'       '---..________      __      __..-'    \n                               '----.__\\---'            \n                                      '---->            \n                                                        \n                                                        ",
+      "                                 __                     \n                             _.-'  '-.                  \n       __            __..---'         '---..___         \n                 _.-'                          '-.      \n       __    _.-'                                 \\     \n       \\ '--'                                   o \\     \n        >                                          |    \n       /____                                    ___|    \n            '--..__                            /___/    \n                     '---..____      __      __..-'     \n                               '----.___\\---'           \n                                     '---'              \n                                                        \n                                                        "
+    ]
+  },
+  {
+    "id": "oarfish",
+    "interval": 280,
+    "frames": [
+      "          \\  |  /    \n           \\ | /     \n            \\|/      \n          .-' '-.    \n         /  o   _>   \n         |     /     \n         / .  |\\     \n        /\\/.  | \\__  \n       /\\/ .  |    '-\n       \\/| .  |      \n        /| .  |      \n       /\\/ .  |      \n       \\/| .  |      \n        /|  . \\      \n        \\/   . \\     \n         \\   . /\\    \n          \\  . /\\/   \n          |  . |/    \n          | .  /\\    \n          | .  \\/    \n         /  . /\\     \n        /  . /\\/     \n        | .  |/      \n        | . /\\       \n         \\ .\\/       \n          \\  \\       \n           \\ /       \n           |/        \n           /         ",
+      "          \\  |  /    \n           \\ | /     \n            \\|/      \n          .-' '-.    \n         /  o   _>   \n         |     /     \n         / .  |\\     \n        |/.  | \\__   \n        /| .  |    '-\n       /\\| .  |      \n        /| .  |      \n        /| .  |      \n       /\\| .  |      \n        /|  . \\      \n        \\/   . \\     \n         \\   . /\\    \n          \\  . /\\/   \n          |  . |/    \n          | .  /\\    \n          | .  \\/    \n         /  . /\\     \n        /  . /\\/     \n        | .  |/      \n        | . /\\       \n        \\ . /        \n         \\  \\        \n          \\ /        \n          |/         \n          /          ",
+      "          \\  |  /    \n           \\ | /     \n            \\|/      \n          .-' '-.    \n         /  o   _>   \n         |     /     \n         / .  |\\     \n        \\|.  | \\__   \n        \\| .  |    '-\n        /| .  |      \n        /| .  |      \n       \\/| .  |      \n        /| .  |      \n        /|  . \\      \n        \\/   . \\     \n         \\   . /\\    \n          \\  . /\\/   \n          |  . |/    \n          | .  /\\    \n          | .  \\/    \n         /  . /\\     \n        /  . /\\/     \n        | .  |/      \n        | . /\\       \n       \\ . /         \n        \\  \\         \n         \\ /         \n         |/          \n         /           ",
+      "          \\  |  /    \n           \\ | /     \n            \\|/      \n          .-' '-.    \n         /  o   _>   \n         |     /     \n         / .  |\\     \n        |/.  | \\__   \n        /| .  |    '-\n       /\\| .  |      \n        /| .  |      \n        /| .  |      \n       /\\| .  |      \n        /|  . \\      \n        \\/   . \\     \n         \\   . /\\    \n          \\  . /\\/   \n          |  . |/    \n          | .  /\\    \n          | .  \\/    \n         /  . /\\     \n        /  . /\\/     \n        | .  |/      \n        | . /\\       \n        \\ . /        \n         \\  \\        \n          \\ /        \n          |/         \n          /          "
+    ]
+  }
+];
+for (const creature of creatures) {
+  const lines = creature.frames.map(frame => frame.replace(/^\n|\n$/g, '').split('\n'));
+  const width = Math.max(...lines.flat().map(line => line.length));
+  const height = Math.max(...lines.map(frame => frame.length));
+  creature.frames = lines.map(frame => Array.from({ length: height }, (_, i) => (frame[i] || '').padEnd(width)).join('\n'));
+  creature.cycle = creature.frames.length === 3 ? [0, 1, 2, 1] : [0, 1, 2, 3];
+  creature.element = document.getElementById(creature.id);
+}
+const toggle = document.getElementById('toggle');
+const speed = document.getElementById('speed');
+let playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+let elapsed = 0;
+let previous = null;
+function render(frame) {
+  for (const creature of creatures) {
+    const phase = frame ?? Math.floor(elapsed / creature.interval);
+    const art = creature.frames[creature.cycle[phase % creature.cycle.length]];
+    if (creature.element.textContent !== art) creature.element.textContent = art;
+  }
+  toggle.textContent = playing ? '일시정지' : '재생';
+}
+toggle.addEventListener('click', () => { playing = !playing; previous = null; render(); });
+let manualFrame = 0;
+document.getElementById('step').addEventListener('click', () => {
+  playing = false;
+  render(++manualFrame);
+});
+function tick(time) {
+  if (previous !== null && playing && !document.hidden) {
+    elapsed += Math.min(time - previous, 100) * Number(speed.value);
+    render();
+  }
+  previous = time;
+  requestAnimationFrame(tick);
+}
+render();
+requestAnimationFrame(tick);
+</script>
+</html>

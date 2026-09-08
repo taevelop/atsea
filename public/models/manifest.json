@@ -334,5 +334,101 @@
     ],
     "vertices": 42,
     "animation": null
+  },
+  {
+    "key": "dolphin",
+    "path": "models/dolphin.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Dolphin.blend",
+    "editable": "assets/source/atsea-adapted/dolphin.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 34308,
+    "dimensions": [
+      9.2333,
+      3.0595,
+      3.2937
+    ],
+    "vertices": 222,
+    "animation": "Swim"
+  },
+  {
+    "key": "whale",
+    "path": "models/whale.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Whale.blend",
+    "editable": "assets/source/atsea-adapted/whale.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 54480,
+    "dimensions": [
+      10.1487,
+      3.2485,
+      4.0626
+    ],
+    "vertices": 396,
+    "animation": "Swim"
+  },
+  {
+    "key": "turtle",
+    "path": "models/turtle.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/turtle.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 174700,
+    "dimensions": [
+      2.2619,
+      0.654,
+      2.5121
+    ],
+    "vertices": 2086,
+    "animation": "Swim"
+  },
+  {
+    "key": "crab",
+    "path": "models/crab.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/crab.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 107044,
+    "dimensions": [
+      2.3564,
+      1.3979,
+      0.9839
+    ],
+    "vertices": 1134,
+    "animation": "Swim"
+  },
+  {
+    "key": "shrimp",
+    "path": "models/shrimp.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/shrimp.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 198580,
+    "dimensions": [
+      2.9559,
+      1.4612,
+      0.9381
+    ],
+    "vertices": 2217,
+    "animation": "Swim"
+  },
+  {
+    "key": "oarfish",
+    "path": "models/oarfish.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/oarfish.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 243096,
+    "dimensions": [
+      1.0298,
+      5.5608,
+      0.3635
+    ],
+    "vertices": 1502,
+    "animation": "Swim"
   }
 ]

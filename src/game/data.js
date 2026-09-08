@@ -1,6 +1,12 @@
 // Logical dimensions from At Sea 4.5.0; independent of render assets.
 export const DATA = {
   "colors": {
+    "TURTLE": ["#9ebf89", "#79ad99", "#adc899"],
+    "CRAB": ["#ed996f", "#da8078", "#dfb18c"],
+    "SHRIMP": ["#efb1b5", "#d9969f", "#f1c4ac"],
+    "DOLPHIN": ["#8cc7da", "#92b7cf", "#9acdd8"],
+    "WHALE": ["#729ab9", "#829cb4", "#739eaf"],
+    "OARFISH": ["#d8d5e5", "#bfcddb", "#e2cad9"],
     "FISH": [
       "#ff8700",
       "#ffaf00",
@@ -155,6 +161,12 @@ export const DATA = {
   ],
   "maxDepth": 1500,
   "sizes": {
+    "TURTLE": [{ "w": 35, "h": 9 }],
+    "CRAB": [{ "w": 17, "h": 7 }],
+    "SHRIMP": [{ "w": 22, "h": 7 }],
+    "DOLPHIN": [{ "w": 48, "h": 13 }],
+    "WHALE": [{ "w": 56, "h": 14 }],
+    "OARFISH": [{ "w": 21, "h": 29 }],
     "FISH": [
       {
         "w": 3,

@@ -45,6 +45,8 @@ describe('3D colors on real model assets', () => {
     ['fish6', 'Body'], ['lantern', 'Top'], ['shark', 'Top'], ['ray', 'Top'],
     ['jelly', 'Jelly bell'], ['seahorse', 'Seahorse ochre'], ['squid', 'Squid mantle'],
     ['octopus', 'Octopus mantle'], ['angler', 'Anglerfish_Main'],
+    ['turtle', 'Turtle shell'], ['crab', 'Crab shell'], ['shrimp', 'Shrimp shell'],
+    ['dolphin', 'Top'], ['whale', 'Top'], ['oarfish', 'Oarfish silver'],
   ])('shows the entity color on %s skin without recoloring other individuals', (id, skin) => {
     const original = create(id), originalColor = material(original, skin).color.clone();
     const orange = create(id, false, '#ff8700'), cyan = create(id, false, '#00ffff');
@@ -85,6 +87,28 @@ describe('3D colors on real model assets', () => {
     }
     expect(material(original, 'Body').emissiveIntensity).toBe(1);
     expect(material(original, 'Body').emissive.getHex()).toBe(0);
+  });
+
+  it.each([
+    ['turtle', 'Turtle shell'], ['crab', 'Crab shell'], ['shrimp', 'Shrimp shell'],
+    ['dolphin', 'Top'], ['whale', 'Top'], ['oarfish', 'Oarfish silver'],
+  ])('gives rare %s the same luminous skin and halo as existing rare species', (id, skin) => {
+    const rare = create(id, true), normal = create(id);
+    const reference = create('shark', true);
+    expect(material(rare, skin).color).toEqual(material(reference, 'Top').color);
+    expect(material(rare, skin).emissive).toEqual(material(reference, 'Top').emissive);
+    expect(material(rare, skin).emissiveIntensity).toBe(material(reference, 'Top').emissiveIntensity);
+    expect(rare.glow.material).toBe(reference.glow.material);
+    expect(normal.glow).toBeNull();
+    library.updateGlow(rare, 2);
+    const scale = rare.glow.scale.clone();
+    library.updateGlow(rare, 2);
+    expect(rare.glow.scale).toEqual(scale);
+    normal.object.traverse(mesh => {
+      if (mesh.isMesh && /eyes|iris/i.test(mesh.material.name)) {
+        expect(material(rare, mesh.material.name)).toBe(mesh.material);
+      }
+    });
   });
 
   it('keeps small rare animals visible and freezes their individual glow with the clock', () => {
@@ -144,6 +168,24 @@ describe('3D colors on real model assets', () => {
     delete second.color;
     acquire(second);
     expect(material(instance, 'Top')).toBe(material(create('fish1'), 'Top'));
+  });
+
+  it('draws 3D shrimp at the second-smallest fish length while retaining its ASCII footprint', () => {
+    const renderer = Object.assign(Object.create(SeaRenderer.prototype), {
+      library, instances: new Map(), pool: new Map(), world: new THREE.Group(),
+      aspect: 2, metrics: {},
+    });
+    const animal = (kind, guideId, w, h, x) => ({ kind, guideId, w, h, x, y: 10, yf: 10, dir: 1, color: '#efb1b5' });
+    const shrimp = animal('shrimp', 'shrimp', 22, 7, 60);
+    const smallest = animal('fish', 'fish0', 3, 1, 10), next = animal('fish', 'fish1', 5, 1, 20);
+    const ocean = { w: 160, floorY: 1000, groups: { fish: [smallest, next], shrimp: [shrimp] }, subs: [] };
+    renderer.syncOcean({ ocean, cam: 0, rows: 40, clock: 0 });
+    const width = being => { const i = renderer.instances.get(being); return i.size.x * i.pivot.scale.x; };
+    expect(width(shrimp)).toBeCloseTo(width(next), 5);
+    expect(width(shrimp)).toBeGreaterThan(width(smallest));
+    expect(shrimp.w).toBe(22);
+    expect(renderer.instances.get(shrimp).group.position.x).toBe(shrimp.x + shrimp.w / 2);
+    instances.push(...renderer.instances.values());
   });
 
   it('reuses cached color materials across individuals and repeated color changes', () => {

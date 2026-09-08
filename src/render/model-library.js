@@ -7,11 +7,18 @@ export const MODEL_IDS = [
   'fish0', 'fish1', 'fish2', 'fish3', 'fish4', 'fish5', 'fish6',
   'jelly', 'seahorse', 'squid', 'ray', 'lantern', 'octopus', 'angler',
   'shark', 'megalodon', 'sub', 'coral', 'starfish', 'seaweed', 'rock',
+  'turtle', 'crab', 'shrimp', 'dolphin', 'whale', 'oarfish',
 ];
 
 // Tint skin only; retain eyes, stripes, teeth, and bioluminescent markings.
 // Secondary skin materials keep some of their original shading.
 const SKIN_TINTS = {
+  turtle: { 'Turtle shell': 1, 'Turtle skin': .6 },
+  crab: { 'Crab shell': 1, 'Crab legs': .7 },
+  shrimp: { 'Shrimp shell': 1, 'Shrimp legs': .6 },
+  dolphin: { Top: 1, Bottom: .4 },
+  whale: { Top: 1, Bottom: .4 },
+  oarfish: { 'Oarfish silver': 1 },
   fish0: { Tetra_Main: 1, Tetra_Light: .6, Tetra_Fins: .6 },
   fish1: { Top: 1, Bottom: .6 },
   fish2: { BlueTang_Main: 1 },

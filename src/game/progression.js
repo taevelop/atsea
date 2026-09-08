@@ -16,8 +16,16 @@ const GUIDE = [
   ["angler", 0, "#af875f"],
   ["megalodon", 2, "#a8e6ff"],
   ["shark", 0, "#87d7ff"],
+  ["turtle", 0, "#9ebf89"],
+  ["crab", 0, "#ed996f"],
+  ["shrimp", 0, "#efb1b5"],
+  ["dolphin", 0, "#8cc7da"],
+  ["whale", 0, "#729ab9"],
+  ["oarfish", 0, "#d8d5e5"],
 ];
 const FISH_IDS = ["fish0", "fish1", "fish2", "fish3", "fish4", "fish5", "fish6"];
+// Keep earned legacy titles and the permanent bait requirement stable as the guide grows.
+const COAST_IDS = [...FISH_IDS, 'jelly', 'seahorse', 'squid', 'ray', 'lantern', 'octopus', 'angler'];
 const CATCH_ENTRIES = () => GUIDE.filter(e => CATCHABLE.includes(e[0]));
 const has = (log, ...ids) => ids.every(i => log[i]);
 const TITLES = [
@@ -28,7 +36,7 @@ const TITLES = [
   ["dark",     t => has(t.log, "lantern", "octopus", "angler")],
   ["slow",     t => has(t.log, "jelly", "seahorse", "ray")],
   ["ten",      t => t.species >= 10],
-  ["coast",    t => CATCH_ENTRIES().every(e => t.log[guideId(e[0], e[1])])],
+  ["coast",    t => COAST_IDS.every(id => t.log[id])],
   ["luck",     t => t.rareTotal >= 1],
   ["pale",     t => t.rareSpecies >= 5],
   ["whitefin", t => !!t.rare.shark],
