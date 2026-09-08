@@ -1,0 +1,80 @@
+﻿# At Sea 3D 모델과 출처
+
+웹은 `public/models/`의 로컬 GLB만 읽습니다. 외부 모델 서버에 런타임으로 의존하지 않습니다. 모든 생물·잠수함·배경 소품은 편집 가능한 Blender 장면을 `assets/source/atsea-adapted/`에 함께 보관합니다.
+
+## 다운로드한 원본
+
+| 자료 | 제작자 / 라이선스 | 보관 위치 |
+|---|---|---|
+| [Animated Fish Pack](https://quaternius.com/packs/animatedfish.html) | Quaternius / [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | `assets/source/quaternius-animated-fish.zip`, 같은 이름의 압축 해제 폴더 |
+| [Animated Cute Fish Pack](https://quaternius.com/packs/cutefish.html) | Quaternius / CC0 1.0 | `assets/source/quaternius-cute-fish/*.glb` |
+
+Animated Fish의 ZIP은 [제작자 본인이 등록한 OpenGameArt 배포 페이지](https://opengameart.org/content/animated-fish)에서 받았습니다. ZIP에는 수정하지 않은 `.blend`, FBX, OBJ 및 제작자의 `License.txt`가 포함되어 있습니다.
+
+Cute Fish 공식 페이지가 연결하는 Google Drive는 2026-09-08 다운로드 시 `Quota exceeded`를 반환했습니다. 대신 [Quaternius의 Poly Pizza 배포 묶음](https://poly.pizza/bundle/Animated-Fish-Bundle-44zhHN1UbT)에서 CC0로 표시된 원본 GLB 8개를 받았습니다. 각 모델의 개별 페이지, 직접 다운로드 URL과 파일명은 `assets/source/quaternius-cute-fish/sources.json`에 기록했습니다. Cute Fish의 제작자 원본 `.blend`를 받았다고 표시하지 않습니다. 이 모델들의 `atsea-adapted/*.blend`는 받은 GLB를 Blender로 불러와 수정하고 저장한 편집본입니다.
+
+보완 모델은 이 프로젝트를 위해 Blender Python으로 새로 제작했으며 타인의 모델·텍스처를 포함하지 않습니다. Blender는 제작 도구이며 Blender 프로그램의 GPL은 이 프로젝트 모델의 라이선스를 의미하지 않습니다.
+
+## 게임 식별자와 모델 연결
+
+| 키 | 표현 / 원본 | 변경 |
+|---|---|---|
+| `fish0` | 네온 고비 / Cute Fish Tetra | 가늘고 긴 체형, 청록색 발색 |
+| `fish1` | 블루 담셀 / Animated Fish Fish1 | 파랑 몸체와 따뜻한 꼬리, 눈 보완 |
+| `fish2` | 리갈 탱 / Cute Fish Blue Tang | 파랑·노랑 무늬, 작은 눈 |
+| `fish3` | 엠퍼러 엔젤피시 / Cute Fish Butterfly Fish | 엔젤피시형 측면 윤곽, 금색·남색 배색 |
+| `fish4` | 복어 / Cute Fish Puffer | 가시·둥근 체형, 작은 눈 |
+| `fish5` | 바라쿠다 / Animated Fish Fish1 | 길쭉한 은빛 몸체와 낮은 지느러미 |
+| `fish6` | 흰동가리 / Animated Fish Fish3 | 주황색·아이보리 줄무늬, 눈 보완 |
+| `ray` | 가오리 / Animated Fish Manta ray | 청회색 등과 밝은 배 |
+| `shark` | 상어 / Animated Fish Shark | 청회색 등, 눈 보완 |
+| `megalodon` | 메갈로돈 / Animated Fish Shark | 넓은 몸통, 어두운 배색; 게임에서 크게 표시 |
+| `angler` | 아귀 / Cute Fish Anglerfish | 작은 눈, 발광 미끼 |
+| `lantern` | 랜턴피시 / Animated Fish Fish1 | 가늘고 어두운 몸체, 양옆 발광점 |
+| `jelly` | 해파리 / 새 Blender 모델 | 우산형 갓, 구강완과 긴 촉수 |
+| `seahorse` | 해마 / 새 Blender 모델 | 말린 꼬리, 주둥이, 골질 융기 |
+| `squid` | 오징어 / 새 Blender 모델 | 긴 외투막, 팔 8개와 긴 촉수 2개 |
+| `octopus` | 문어 / 새 Blender 모델 | 외투막, 팔 8개, 흡반 |
+| `sub` | 잠수함 / 새 Blender 모델 | 금색 선체, 현창, 잠망경, 프로펠러 |
+| `coral` | 산호 / 새 Blender 모델 | 부드러운 가지형 산호 |
+| `starfish` | 불가사리 / 새 Blender 모델 | 팔 5개와 표면 알갱이 |
+| `seaweed` | 해초 / 새 Blender 모델 | 가지와 얇은 잎이 있는 해초 군락 |
+| `rock` | 바위 / 새 Blender 모델 | 비대칭 해저 바위 |
+
+어종은 게임의 기존 구분을 유지하는 스타일드 표현입니다. Tetra·Butterfly Fish·Fish1을 바탕으로 변형한 모델은 해당 생물의 과학적 복원 모델이 아닙니다.
+
+## 제작과 재생 계약
+
+- GLB는 **+X 진행 방향, +Y 위쪽**입니다. 별도의 카메라·광원을 포함하지 않습니다. 게임 렌더러가 전체 경계 상자로 중심·크기를 맞춥니다.
+- 가오리와 불가사리는 실제처럼 넓고 평평한 모델입니다. 측면 화면에서는 가오리를 X축 약 0.4rad, 불가사리를 약 1.0rad 기울이면 윤곽을 읽기 쉽습니다.
+- 움직이는 모델은 `Swim`이라는 단일 클립을 제공합니다. Quaternius 모델은 원래 뼈대 수영 모션을 유지하고, 보완 생물과 해초는 반복되는 모프 애니메이션을 사용합니다. 잠수함·산호·불가사리·바위는 정적 모델입니다.
+- 수영에 필요하지 않은 공격·사망·물 밖 동작과 원본의 보조 표시 오브젝트를 웹 파일에서 제외했습니다. 내려받은 원본에는 손대지 않습니다.
+- FBX에서 파생된 GLB의 분리된 면 정점을 병합하고 원본의 평면 분할 노멀을 초기화했습니다. 뼈대 가중치는 유지하며 유기체의 표면을 부드럽게 표시합니다. Cute Fish의 눈은 홍채·테두리까지 함께 축소했습니다.
+- 모든 재질은 GLB 내의 PBR 단색 재질입니다. 별도 텍스처가 없어 이미지 로딩 요청이나 누락 경로가 없습니다. 도감 이미지는 앱이 같은 모델·재질에서 생성합니다.
+
+## 재생성
+
+Blender **4.5 LTS**에서 프로젝트 루트를 작업 디렉터리로 지정해 실행합니다. npm이나 웹 서버 실행에는 Blender가 필요하지 않습니다.
+
+```powershell
+blender --background --factory-startup --python scripts/assets/build_assets.py
+```
+
+이 환경에서는 공식 배포 파일의 SHA-256을 대조한 휴대용 Blender 4.5.13을 `.tools/blender-4.5.13-windows-x64/`에 사용했습니다. `.tools/`는 제작·검증용이며 배포하지 않습니다.
+
+```powershell
+.tools/blender-4.5.13-windows-x64/blender.exe --background --factory-startup --python scripts/assets/build_assets.py
+```
+
+재생성은 편집본 `.blend`, 웹 GLB, `public/models/manifest.json`을 다시 만듭니다. 다운로드 원본은 변경하지 않습니다. 직접 `.blend`를 편집할 경우 스크립트를 다시 실행하면 편집본이 재생성되므로, 수동 편집 내용을 먼저 별도 보관하거나 제작 스크립트에 반영합니다.
+
+`manifest.json`은 모델별 용량, 정점 수, 축, 경계 크기, 애니메이션과 원본 경로를 기록합니다. `assets/source/checksums.sha256`은 내려받은 원본의 SHA-256입니다. 웹 파일을 다시 생성하면 용량과 바이너리 내용은 Blender 버전에 따라 조금 달라질 수 있습니다.
+
+## 모델 검증
+
+- Blender 4.5.13에서 21개 GLB를 모두 내보내고 다시 불러왔습니다.
+- GLB JSON을 검사해 생물의 뼈대와 `Swim` 클립, 보완 모델의 모프 애니메이션이 존재함을 확인했습니다.
+- `scripts/assets/validate_assets.py`로 GLB를 재수입한 뒤 0·12프레임의 실제 정점 좌표를 비교했습니다. 모든 애니메이션 모델의 변형을 확인했고 총 21개가 통과했습니다. 수치 결과는 `assets/source/validation.json`에 보관합니다.
+- 최종 21개 GLB의 합계 용량은 2,121,172바이트입니다. 원본·편집용 Blender 파일은 웹 배포 대상이 아닙니다.
+- `scripts/assets/preview_assets.py`로 렌더링한 측면 모델 시트를 확인했습니다. 결과는 `.tools/asset-preview/`에 생성되며 앱 배포에는 포함하지 않습니다.
+- 가오리·불가사리의 자연스러운 평면 형태는 앱에서 기울여 표시하도록 렌더러와 연결했습니다.

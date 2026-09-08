@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-08T02:50:36.076Z",
+  "elapsedMs": 7016.3,
+  "fps": 56.4,
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5050 Laptop GPU (0x00002D98) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "p95FrameMs": 18.2,
+  "state": {
+    "baitReady": false,
+    "cam": 196,
+    "camTarget": 196,
+    "clock": 143.32259999998865,
+    "cols": 148,
+    "counts": {
+      "angler": 4,
+      "fish": 262,
+      "jelly": 8,
+      "lantern": 81,
+      "megalodon": 0,
+      "octopus": 4,
+      "ray": 5,
+      "seahorse": 5,
+      "shark": 4,
+      "squid": 7
+    },
+    "depth": 245,
+    "depthFraction": 1,
+    "failed": false,
+    "guideLog": {},
+    "lang": "en",
+    "paused": false,
+    "rareLog": {},
+    "ready": true,
+    "redTide": false,
+    "renderer": {
+      "drawCalls": 375,
+      "fps": 56,
+      "frames": 8071,
+      "geometries": 87,
+      "pixelRatio": 1,
+      "qualityScale": 1,
+      "textures": 627,
+      "triangles": 234164,
+      "visibleModels": 92
+    },
+    "rod": null,
+    "rodLit": false,
+    "rows": 49,
+    "seenLog": {},
+    "statLog": {
+      "seabed": 1
+    },
+    "subCount": 0,
+    "titleLog": {
+      "seabed": 1
+    },
+    "waterOn": true
+  },
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+  "viewport": {
+    "dpr": 1,
+    "height": 960,
+    "width": 1440
+  }
+}

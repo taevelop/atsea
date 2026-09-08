@@ -1,0 +1,152 @@
+{
+  "blender": "4.5.13 LTS",
+  "models": [
+    {
+      "key": "fish0",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 832,
+      "animationMovement": 0.62091,
+      "pass": true
+    },
+    {
+      "key": "fish1",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 572,
+      "animationMovement": 0.197627,
+      "pass": true
+    },
+    {
+      "key": "fish2",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 816,
+      "animationMovement": 0.253014,
+      "pass": true
+    },
+    {
+      "key": "fish3",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 873,
+      "animationMovement": 0.490457,
+      "pass": true
+    },
+    {
+      "key": "fish4",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 1327,
+      "animationMovement": 0.279605,
+      "pass": true
+    },
+    {
+      "key": "fish5",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 572,
+      "animationMovement": 0.165303,
+      "pass": true
+    },
+    {
+      "key": "fish6",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 767,
+      "animationMovement": 0.57596,
+      "pass": true
+    },
+    {
+      "key": "ray",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 402,
+      "animationMovement": 0.903812,
+      "pass": true
+    },
+    {
+      "key": "shark",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 612,
+      "animationMovement": 1.33512,
+      "pass": true
+    },
+    {
+      "key": "megalodon",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 612,
+      "animationMovement": 1.534476,
+      "pass": true
+    },
+    {
+      "key": "angler",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 1112,
+      "animationMovement": 0.57193,
+      "pass": true
+    },
+    {
+      "key": "lantern",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 1952,
+      "animationMovement": 0.155823,
+      "pass": true
+    },
+    {
+      "key": "jelly",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 1996,
+      "animationMovement": 0.13415,
+      "pass": true
+    },
+    {
+      "key": "seahorse",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 2082,
+      "animationMovement": 0.064972,
+      "pass": true
+    },
+    {
+      "key": "squid",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 2150,
+      "animationMovement": 0.139979,
+      "pass": true
+    },
+    {
+      "key": "octopus",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 3594,
+      "animationMovement": 0.141914,
+      "pass": true
+    },
+    {
+      "key": "sub",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 4733,
+      "animationMovement": 0.0,
+      "pass": true
+    },
+    {
+      "key": "coral",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 2310,
+      "animationMovement": 0.0,
+      "pass": true
+    },
+    {
+      "key": "starfish",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 1076,
+      "animationMovement": 0.0,
+      "pass": true
+    },
+    {
+      "key": "seaweed",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 6433,
+      "animationMovement": 0.139431,
+      "pass": true
+    },
+    {
+      "key": "rock",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 63,
+      "animationMovement": 0.0,
+      "pass": true
+    }
+  ]
+}

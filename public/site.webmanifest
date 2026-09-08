@@ -1,0 +1,16 @@
+{
+  "name": "At Sea 3D — Tropical Sea",
+  "short_name": "At Sea 3D",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#01050b",
+  "theme_color": "#01050b",
+  "version": "1.0.0",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,338 @@
+[
+  {
+    "key": "fish0",
+    "path": "models/fish0.glb",
+    "source": "assets/source/quaternius-cute-fish/Tetra.glb",
+    "editable": "assets/source/atsea-adapted/fish0.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 62692,
+    "dimensions": [
+      6.1592,
+      1.2219,
+      2.3458
+    ],
+    "vertices": 770,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish1",
+    "path": "models/fish1.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Fish1.blend",
+    "editable": "assets/source/atsea-adapted/fish1.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 48440,
+    "dimensions": [
+      8.0158,
+      2.5947,
+      1.1535
+    ],
+    "vertices": 446,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish2",
+    "path": "models/fish2.glb",
+    "source": "assets/source/quaternius-cute-fish/BlueTang.glb",
+    "editable": "assets/source/atsea-adapted/fish2.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 61680,
+    "dimensions": [
+      4.7539,
+      2.7551,
+      2.558
+    ],
+    "vertices": 734,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish3",
+    "path": "models/fish3.glb",
+    "source": "assets/source/quaternius-cute-fish/ButterflyFish.glb",
+    "editable": "assets/source/atsea-adapted/fish3.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 64360,
+    "dimensions": [
+      4.7579,
+      2.7832,
+      2.4826
+    ],
+    "vertices": 749,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish4",
+    "path": "models/fish4.glb",
+    "source": "assets/source/quaternius-cute-fish/Puffer.glb",
+    "editable": "assets/source/atsea-adapted/fish4.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 90936,
+    "dimensions": [
+      3.9808,
+      2.4525,
+      2.9277
+    ],
+    "vertices": 1237,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish5",
+    "path": "models/fish5.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Fish1.blend",
+    "editable": "assets/source/atsea-adapted/fish5.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 48592,
+    "dimensions": [
+      11.6229,
+      1.774,
+      0.8536
+    ],
+    "vertices": 446,
+    "animation": "Swim"
+  },
+  {
+    "key": "fish6",
+    "path": "models/fish6.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Fish3.blend",
+    "editable": "assets/source/atsea-adapted/fish6.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 54844,
+    "dimensions": [
+      7.8514,
+      4.0885,
+      0.9605
+    ],
+    "vertices": 517,
+    "animation": "Swim"
+  },
+  {
+    "key": "ray",
+    "path": "models/ray.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Manta ray.blend",
+    "editable": "assets/source/atsea-adapted/ray.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 53968,
+    "dimensions": [
+      11.704,
+      1.1476,
+      8.3886
+    ],
+    "vertices": 354,
+    "animation": "Swim"
+  },
+  {
+    "key": "shark",
+    "path": "models/shark.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Shark.blend",
+    "editable": "assets/source/atsea-adapted/shark.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 50652,
+    "dimensions": [
+      15.8492,
+      5.1861,
+      5.9233
+    ],
+    "vertices": 496,
+    "animation": "Swim"
+  },
+  {
+    "key": "megalodon",
+    "path": "models/megalodon.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Shark.blend",
+    "editable": "assets/source/atsea-adapted/megalodon.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 50832,
+    "dimensions": [
+      15.8492,
+      4.9268,
+      6.8118
+    ],
+    "vertices": 496,
+    "animation": "Swim"
+  },
+  {
+    "key": "angler",
+    "path": "models/angler.glb",
+    "source": "assets/source/quaternius-cute-fish/Anglerfish.glb",
+    "editable": "assets/source/atsea-adapted/angler.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 80072,
+    "dimensions": [
+      5.4704,
+      3.0317,
+      3.1532
+    ],
+    "vertices": 1066,
+    "animation": "Swim"
+  },
+  {
+    "key": "lantern",
+    "path": "models/lantern.glb",
+    "source": "assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/Blends/Fish1.blend",
+    "editable": "assets/source/atsea-adapted/lantern.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 133888,
+    "dimensions": [
+      8.9777,
+      1.8534,
+      0.8075
+    ],
+    "vertices": 1478,
+    "animation": "Swim"
+  },
+  {
+    "key": "jelly",
+    "path": "models/jelly.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/jelly.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 124136,
+    "dimensions": [
+      1.3,
+      2.0617,
+      0.975
+    ],
+    "vertices": 1996,
+    "animation": "Swim"
+  },
+  {
+    "key": "seahorse",
+    "path": "models/seahorse.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/seahorse.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 141924,
+    "dimensions": [
+      1.2286,
+      2.0688,
+      0.4
+    ],
+    "vertices": 1550,
+    "animation": "Swim"
+  },
+  {
+    "key": "squid",
+    "path": "models/squid.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/squid.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 140828,
+    "dimensions": [
+      3.6325,
+      0.565,
+      1.1663
+    ],
+    "vertices": 1852,
+    "animation": "Swim"
+  },
+  {
+    "key": "octopus",
+    "path": "models/octopus.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/octopus.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 232524,
+    "dimensions": [
+      2.3439,
+      1.1091,
+      1.2984
+    ],
+    "vertices": 2836,
+    "animation": "Swim"
+  },
+  {
+    "key": "sub",
+    "path": "models/sub.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/sub.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 198652,
+    "dimensions": [
+      2.82,
+      1.425,
+      1.2865
+    ],
+    "vertices": 3626,
+    "animation": null
+  },
+  {
+    "key": "coral",
+    "path": "models/coral.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/coral.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 97924,
+    "dimensions": [
+      1.0351,
+      1.2105,
+      0.7382
+    ],
+    "vertices": 1911,
+    "animation": null
+  },
+  {
+    "key": "starfish",
+    "path": "models/starfish.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/starfish.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 45564,
+    "dimensions": [
+      1.072,
+      0.2274,
+      1.0203
+    ],
+    "vertices": 784,
+    "animation": null
+  },
+  {
+    "key": "seaweed",
+    "path": "models/seaweed.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/seaweed.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 334932,
+    "dimensions": [
+      1.0866,
+      1.4091,
+      0.2902
+    ],
+    "vertices": 1953,
+    "animation": "Swim"
+  },
+  {
+    "key": "rock",
+    "path": "models/rock.glb",
+    "source": "At Sea original Blender geometry",
+    "editable": "assets/source/atsea-adapted/rock.blend",
+    "up": "+Y",
+    "forward": "+X",
+    "bytes": 3732,
+    "dimensions": [
+      2.0232,
+      0.8209,
+      1.3689
+    ],
+    "vertices": 42,
+    "animation": null
+  }
+]

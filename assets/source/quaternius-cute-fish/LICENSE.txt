@@ -1,0 +1,10 @@
+﻿Quaternius Animated Cute Fish Pack
+Author: Quaternius
+License: CC0 1.0 Universal
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Official pack: https://quaternius.com/packs/cutefish.html
+Downloaded distribution: https://poly.pizza/bundle/Animated-Fish-Bundle-44zhHN1UbT
+Individual model pages and download URLs: sources.json
+Retrieved: 2026-09-08
+Original GLB downloads are unmodified. At Sea's Blender adaptations live in ../atsea-adapted/.
+Official Google Drive .blend downloads returned Quota exceeded; no failed HTML response is retained as a Blender file.

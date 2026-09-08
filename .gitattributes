@@ -1,0 +1,6 @@
+* text=auto eol=lf
+/assets/source/** -text -whitespace
+*.glb binary
+*.blend binary
+*.png binary
+*.zip binary

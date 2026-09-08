@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.tools/
+.cache/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+/atsea2d/
+test-results-targeted/
+playwright-report-targeted/

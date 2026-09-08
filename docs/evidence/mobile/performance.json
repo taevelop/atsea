@@ -1,0 +1,64 @@
+{
+  "elapsedMs": 4040.9000000059605,
+  "frames": 78,
+  "fps": 19.3,
+  "p95FrameMs": 62.5,
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "dpr": 1
+  },
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+  "state": {
+    "ready": true,
+    "failed": false,
+    "cam": 192,
+    "camTarget": 192,
+    "depth": 240,
+    "rows": 48,
+    "cols": 52,
+    "depthFraction": 1,
+    "paused": false,
+    "waterOn": true,
+    "redTide": false,
+    "clock": 10.264599999999998,
+    "lang": "en",
+    "rodLit": false,
+    "baitReady": false,
+    "counts": {
+      "fish": 92,
+      "shark": 4,
+      "jelly": 8,
+      "seahorse": 2,
+      "squid": 7,
+      "angler": 4,
+      "lantern": 28,
+      "octopus": 4,
+      "ray": 5,
+      "megalodon": 0
+    },
+    "guideLog": {},
+    "rareLog": {},
+    "statLog": {
+      "seabed": 1
+    },
+    "titleLog": {
+      "seabed": 1
+    },
+    "seenLog": {},
+    "rod": null,
+    "subCount": 0,
+    "renderer": {
+      "frames": 206,
+      "fps": 20,
+      "visibleModels": 38,
+      "drawCalls": 151,
+      "triangles": 89892,
+      "pixelRatio": 0.65,
+      "qualityScale": 0.65,
+      "geometries": 84,
+      "textures": 314
+    }
+  },
+  "environment": "Headless Microsoft Edge, ANGLE SwiftShader software WebGL; viewport emulation is not physical mobile hardware."
+}

@@ -1,0 +1,1145 @@
+
+  /* 아티팩트 뷰어가 대신 넣어주던 최소 리셋. 단독 호스팅에는 직접 필요합니다. */
+  :root { color-scheme: dark; }
+  html, body { margin: 0; padding: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+
+
+  /* 이 페이지는 깊은 물속 한 가지 세계에 전념한다. 그래서 라이트/다크를
+     나누지 않고, 대신 모든 색을 토큰으로 명시해 호스트 배경에 기대지 않는다. */
+  :root {
+    --ink: #dbe7f2;
+    --ink-dim: #7f96ad;      /* 파랑 쪽으로 기울인 회색 */
+    --ink-faint: #4a5f75;
+    --rail: #060d16;
+    --rail-line: #17293c;
+    --lure: #ffe27a;         /* 아귀의 발광구, 잠수함 탐조등 - 이 페이지의 유일한 강조색 */
+    --sand: #c8a96a;
+    --rare: #f2fbff;         /* 아주 가끔 태어나는 변이. 어떤 팔레트에도 없는 색 */
+    --surface: #00d7ff;      /* 물결이 이는 수면의 색. 제목이 이 색을 빌려 쓴다 */
+    --abyss: #01050b;
+    /* 이름표가 눈금 안쪽으로 들어오면서 열이 조금 넓어졌다. 74px 에서는
+       midnight 이 잘린다. */
+    --gauge-w: 104px;
+    /* 눈금이 계기 안에서 시작하고 끝나는 자리. 좁은 화면에서는 수심 숫자가
+       위로 올라오므로 그만큼 눈금을 아래에서 시작시킨다. */
+    --track-top: 18px;
+    --track-bot: 18px;
+    /* ---- 안전 영역 ----
+       노치·둥근 모서리·홈 인디케이터가 먹는 띠. 바다는 그 아래까지 흘려보내고
+       (그래야 배경화면 모드가 화면을 꽉 채운다), 읽고 눌러야 하는 것 - 상태줄,
+       조작줄, 수심계 - 만 이만큼 안으로 들인다. env() 를 못 읽는 브라우저에서는
+       0px 로 떨어져 지금까지와 똑같이 그려진다. */
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --bar-h: 46px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--abyss);
+    color: var(--ink);
+    font-family: "IBM Plex Sans Condensed", system-ui, -apple-system, sans-serif;
+    height: 100dvh;
+    overflow: hidden;
+    display: grid;
+    /* 수심계는 오른쪽 열. 위에 상태줄, 아래에 조작줄이 붙고 그 사이가 바다다.
+       minmax(0,1fr) 이라야 조작줄의 긴 글줄이 첫 열을 창 밖까지 밀어내지 않는다. */
+    grid-template-columns: minmax(0, 1fr) calc(var(--gauge-w) + var(--safe-r));
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  /* ---- 오른쪽 수심계: 스크롤바이자 계기판 ---- */
+  .gauge {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    position: relative;
+    background: var(--rail);
+    border-left: 1px solid var(--rail-line);
+    cursor: ns-resize;
+    touch-action: none;
+    user-select: none;
+  }
+  /* 눈금은 바깥쪽(오른쪽) 가장자리에 붙이고 이름표는 그 안쪽으로 흘린다.
+     왼쪽에 있을 때처럼 이름표를 바깥으로 내보내면 열 밖으로 잘려 나간다. */
+  .gauge-track {
+    position: absolute;
+    inset: calc(var(--track-top) + var(--safe-t)) calc(14px + var(--safe-r)) calc(var(--track-bot) + var(--safe-b)) auto;
+    width: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .gauge-zones {
+    position: absolute;
+    inset: calc(var(--track-top) + var(--safe-t)) var(--safe-r) calc(var(--track-bot) + var(--safe-b)) 0;
+    pointer-events: none;
+  }
+  .gauge-zone {
+    position: absolute;
+    left: 6px;
+    right: 30px;
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .gauge-view {
+    position: absolute;
+    right: calc(8px + var(--safe-r));
+    width: 22px;
+    border: 1px solid var(--lure);
+    border-radius: 3px;
+    background: rgba(255, 226, 122, .10);
+    pointer-events: none;
+    transition: none;
+  }
+  .readout {
+    position: absolute;
+    left: 0; right: var(--safe-r); bottom: calc(8px + var(--safe-b));
+    text-align: center;
+    pointer-events: none;
+  }
+  .readout .m {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    color: var(--lure);
+    display: block;
+    line-height: 1.1;
+  }
+  .readout .z {
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---- 바다 ---- */
+  .sea { grid-column: 1; grid-row: 2; position: relative; overflow: hidden; background: var(--abyss); }
+  /* 브라우저의 손짓은 캔버스에서 모두 끈다. 한 손가락은 미끼, 두 손가락은
+     수심 - 둘 다 이 판이 직접 듣는다. 이걸 켜 두면 두 손가락이 페이지 확대로
+     새어 나가고 바다는 그대로 있는다. */
+  canvas { display: block; width: 100%; height: 100%; cursor: pointer; touch-action: none; }
+  /* 십자는 겨냥하는 자리에서만 쓴다. 줄이 물에 있을 때가 그때다. */
+  body.rod canvas { cursor: crosshair; }
+
+  /* ---- 위 상태줄 ---- */
+  .bar--top {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* 노치가 먹는 만큼 위로 키우고, 글자는 그 아래에서 시작한다. */
+    min-height: calc(var(--bar-h) + var(--safe-t));
+    padding: var(--safe-t) 14px 0 max(14px, var(--safe-l));
+    background: var(--rail);
+    border-bottom: 1px solid var(--rail-line);
+    font-size: 12px;
+    color: var(--ink-dim);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .mark { font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink); }
+  .mark b { color: var(--surface); font-weight: 600; }
+
+  /* ---- 아래 조작줄 ---- */
+  .bar {
+    grid-column: 1;
+    grid-row: 3;
+    position: relative;      /* 접는 손잡이가 이 위에 매달린다 */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* 홈 인디케이터 위로 버튼이 물리지 않게 아래를 그만큼 띄운다. */
+    padding: 7px 14px calc(7px + var(--safe-b)) max(14px, var(--safe-l));
+    background: var(--rail);
+    border-top: 1px solid var(--rail-line);
+    font-size: 12px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+  /* 접히는 부분. 손잡이만 밖에 두면 접어 놓고도 되돌릴 수 있다 - 좁은 화면에서
+     조작줄이 세 줄로 접히면 바다가 그만큼 줄어드는데, 그냥 보고 싶을 때가 있다. */
+  #panel { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  body.panel-off #panel { display: none; }
+  body.panel-off .bar { padding-top: 0; padding-bottom: calc(4px + var(--safe-b)); }
+  .panel-toggle {
+    position: absolute;
+    right: max(14px, var(--safe-r));
+    bottom: 100%;
+    padding: 3px 11px;
+    font-size: 11px;
+    letter-spacing: .06em;
+    background: var(--rail);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    color: var(--ink-faint);
+  }
+  .panel-toggle:hover { color: var(--ink); }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    row-gap: 8px;
+    min-width: 0;
+    min-height: 30px;
+    /* 좁아지면 가로로 스크롤시키기보다 줄을 접는다. 조작줄에 가로 막대가
+       생기면 슬라이더를 잡으려다 막대를 잡는다. */
+    flex-wrap: wrap;
+  }
+  /* 개체 수 조절. 슬라이더는 이 판에서 되살린 이전 판의 조작이다. */
+  .ctl { display: flex; align-items: center; gap: 6px; flex: none; }
+  .ctl label { color: var(--ink-faint); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  .ctl input[type="range"] { width: 84px; accent-color: var(--lure); background: transparent; }
+  .ctl output {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    min-width: 3ch;
+    text-align: right;
+  }
+  .keys { margin-left: auto; color: var(--ink-faint); font-size: 11px; letter-spacing: .04em; }
+
+  /* ---- 단축키 쪽지 ---- */
+  .help { position: relative; flex: none; display: flex; }
+  #btn-help { width: 28px; padding: 6px 0; text-align: center; line-height: 1; }
+  /* 조작줄이 화면 맨 아래라 쪽지는 위로 편다. 오른쪽 끝에 붙여 물음표 바로 위에 선다. */
+  .help-card {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    z-index: 5;
+    width: 272px;
+    max-height: 64vh;
+    overflow-y: auto;
+    padding: 11px 13px 13px;
+    background: #0b1724;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .6);
+    white-space: normal;
+    cursor: default;
+  }
+  .help-card h3 {
+    margin: 11px 0 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .help-card h3:first-child { margin-top: 0; }
+  /* 쪽지 맨 위, MOVE 위에 서는 판 번호 한 줄. */
+  .help-ver {
+    margin: 0 0 9px;
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: var(--ink-faint);
+  }
+  .help-ver b { font-weight: 600; color: var(--ink-dim); }
+  .help-card .help-ver + h3 { margin-top: 0; }
+  .help-card dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 5px 10px;
+    align-items: baseline;
+  }
+  .help-card dt { white-space: nowrap; }
+  .help-card dd { margin: 0; font-size: 11px; color: var(--ink-dim); }
+  button {
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--ink);
+    background: #10202f;
+    border: 1px solid var(--rail-line);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--ink-faint); }
+  button:focus-visible { outline: 2px solid var(--lure); outline-offset: 2px; }
+  button[aria-pressed="true"] { border-color: var(--sand); color: var(--sand); }
+  /* Water 만은 반대로 읽는다. 물빛이 켜진 것이 기본이라, 테두리가 가리켜야 할
+     것은 기본이 아닌 쪽 - 물빛을 끈 검은 바다다. */
+  #btn-water[aria-pressed="true"] { border-color: var(--rail-line); color: var(--ink); }
+  #btn-water[aria-pressed="false"] { border-color: var(--sand); color: var(--sand); }
+  .hint { margin-left: auto; color: var(--ink-faint); }
+  kbd {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    border: 1px solid var(--rail-line);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink-dim);
+  }
+  /* 배경화면 모드: 계기판도 조작줄도 감추고 바다만 남긴다. 전체화면 요청이
+     거부되는 환경(아이프레임 등)에서도 크롬은 사라지도록 클래스로 따로 잡는다. */
+  body.bare { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+  body.bare .gauge, body.bare .bar, body.bare .bar--top { display: none; }
+  body.bare .sea { grid-column: 1; grid-row: 1; }
+  .escape {
+    position: fixed;
+    left: 50%; bottom: calc(18px + var(--safe-b));
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: rgba(1, 5, 11, .55);
+    border-radius: 999px;
+    padding: 5px 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  /* 배경화면 모드에서 빠져나오는 단추. 모바일에는 Esc 도 F 도 없고, 아이폰
+     사파리는 전체화면 요청 자체를 거절해서 fullscreenchange 도 오지 않는다.
+     그래서 키에만 기대면 되돌아올 길이 아주 없어진다. 화면을 건드리면
+     잠깐 떠오르고 곧 다시 잠기는, 동영상 플레이어의 그 단추다. */
+  .escape-out {
+    position: fixed;
+    /* 배경화면 모드에서는 오른쪽 위에 아이콘 줄이 함께 뜬다. 그 아래로 내린다. */
+    top: calc(12px + var(--safe-t) + 3 * 42px + 2 * 9px + 14px);
+    right: calc(12px + var(--safe-r));
+    z-index: 6;
+    display: none;
+    opacity: 0;
+    /* 잠겨 있는 동안에는 손을 받지 않는다. 안 그러면 안 보이는 단추가 모서리에서
+       바다를 향한 손가락을 가로챈다. */
+    pointer-events: none;
+    background: rgba(1, 5, 11, .72);
+    transition: opacity .3s ease;
+  }
+  body.bare .escape-out { display: block; }
+  /* 건드린 뒤 잠깐 - awake - 동안만 보인다. 그 사이에는 눌러야 하니 손을 받는다. */
+  body.bare.awake .escape, body.bare.awake .escape-out { opacity: 1; }
+  body.bare.awake .escape-out { pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    .escape, .escape-out { transition: none; }
+  }
+  @media (max-width: 620px) {
+    /* 좁은 화면에서는 계기를 눈금만 남긴다. 지금 어느 층인지는 아래 숫자가 읽어 준다. */
+    :root { --gauge-w: 44px; }
+    /* 입질 알림은 좁은 화면에서도 남긴다 - 1.5초짜리 알림을 숨기면 낚시가 안 된다. */
+    .gauge-zone, .keys { display: none; }
+    /* 줄이 접히면 안내문과 물음표가 서로 다른 줄에 앉는다. 남는 자리를 미는 일은
+       물음표가 직접 해야 제 줄에서 오른쪽 끝에 붙는다. */
+    .hint { margin-left: 0; white-space: normal; }
+    .help { margin-left: auto; }
+    /* 좁은 화면에서는 조작줄이 여러 줄로 접히는 탓에, 물음표 위에 매달면 쪽지가
+       그 버튼들을 절반쯤 덮는다. 바다 한가운데에 띄워 가리는 것이 바다뿐이게 한다. */
+    .help-card {
+      position: fixed;
+      left: calc(12px + var(--safe-l));
+      right: calc(12px + var(--safe-r));
+      top: 50%;
+      bottom: auto;
+      transform: translateY(-50%);
+      width: auto;
+      max-height: calc(78vh - var(--safe-t) - var(--safe-b));
+    }
+    /* 수심 숫자를 계기 위로 올린다. 아래에 두면 조작줄·홈 인디케이터와 겹겹이
+       쌓여 화면 밑동이 무거워지고, 손가락으로 계기를 훑을 때 가려지기도 한다.
+       올린 만큼 눈금은 아래에서 시작한다. */
+    :root { --track-top: 44px; }
+    .readout { top: calc(8px + var(--safe-t)); bottom: auto; }
+    .readout .m { font-size: 13px; }
+    .readout .z { font-size: 8px; letter-spacing: 0; }
+    .ctl input[type="range"] { width: 62px; }
+    /* 좁은 화면에서는 도감 칸을 한 줄로 세우고, 낚은 쪽지는 바다 아래를 채운다. */
+    .guide-grid { grid-template-columns: 1fr; padding: 12px 12px 16px; }
+    .catch-card { left: 12px; right: 12px; bottom: 12px; width: auto; max-width: none; }
+    .tools { top: 11px; right: 11px; gap: 8px; }
+    .tool { width: 38px; height: 38px; }
+    .tool svg { width: 19px; height: 19px; }
+    /* .sp-art 의 글자 크기는 speciesCard() 가 도안 크기를 재서 인라인으로
+       박는다. 여기서 겹쳐 써 봐야 인라인이 이기므로 규칙을 두지 않는다. */
+  }
+
+  /* ---- 도감 ----
+     쪽지(단축키)와 달리 이건 읽는 것이라, 조작줄 위에 매다는 대신 바다를 덮는
+     한 장으로 연다. 칸은 화면 폭에 따라 접힌다. */
+  .guide-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(14px, var(--safe-t)) max(14px, var(--safe-r)) max(14px, var(--safe-b)) max(14px, var(--safe-l));
+    background: rgba(1, 5, 11, .80);
+  }
+  .guide-card {
+    display: flex;
+    flex-direction: column;
+    width: min(960px, 100%);
+    max-height: 100%;
+    background: #0b1724;
+    border: 1px solid var(--rail-line);
+    border-radius: 8px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .66);
+    overflow: hidden;
+    white-space: normal;
+  }
+  /* 한 줄에 제목·집계·탭·안내문·단추를 모두 밀어 넣었더니 탭이 글자들 사이에
+     묻혀 아무도 못 찾았다. 두 칸으로 나눈다: 위는 읽는 것, 아래는 누르는 것. */
+  .guide-head {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 13px 108px 13px 15px;
+    border-bottom: 1px solid var(--rail-line);
+  }
+  .guide-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .guide-head h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  /* ---- 집계 눈금 ----
+     "10 of 14 species logged · 19 in the basket · 1 rare" 를 그냥 글로 쓰면
+     제목 옆의 회색 글줄 하나가 되어 아무도 읽지 않는다. 숫자를 크게 세우고
+     이름표를 위에 작게 붙여, 눈이 숫자부터 잡게 한다. */
+  .guide-stats { display: flex; gap: 20px; flex-wrap: wrap; min-width: 0; }
+  .gstat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .gstat-k {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .gstat-v {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .gstat-v i { font-style: normal; font-size: 11px; color: var(--ink-faint); }
+  .gstat--rare .gstat-v { color: var(--rare); }
+  .gstat--rare .gstat-k { color: rgba(242, 251, 255, .55); }
+  /* 종 수는 막대까지. 몇 칸 남았는지는 숫자보다 길이가 빨리 말해 준다. */
+  .gbar {
+    display: block;
+    width: 84px;
+    height: 3px;
+    margin-top: 2px;
+    border-radius: 2px;
+    background: var(--rail-line);
+    overflow: hidden;
+  }
+  .gbar i { display: block; height: 100%; background: var(--sand); }
+  .gstat--rare .gbar i { background: var(--rare); }
+  /* 전체 / 희귀 두 칸. 처음에는 글자만 두었더니 제목 옆의 안내문과 구분이
+     안 돼 아무도 못 찾았다. 테두리로 묶은 한 덩어리(세그먼트)로 만들고,
+     고른 칸은 배경까지 채워 눌린 것이 분명하게 보이도록 한다. */
+  .guide-tabs {
+    display: flex;
+    /* 네 칸이 되면서 좁은 화면에서는 한 줄에 안 들어간다. 줄이 넘치면
+       접히게 두고, 칸의 좌우 여백은 한 단계 줄인다. */
+    flex-wrap: wrap;
+    flex: none;
+    align-self: flex-start;
+    gap: 0;
+    padding: 2px;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+    background: #071320;
+  }
+  .guide-tab {
+    padding: 9px 22px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--ink-faint);
+    background: none;
+    border: none;
+    border-radius: 4px;
+  }
+  .guide-tab:hover { color: var(--ink-dim); }
+  .guide-tab[aria-pressed="true"] {
+    color: var(--ink);
+    background: #1b3247;
+  }
+  /* 희귀 칸은 한 단계 더. 이 탭이 있다는 것 자체를 알려야 하므로, 꺼져
+     있을 때도 희귀색이 옅게 배어 있고 켜면 발광한다. */
+  .guide-tab[data-tab="rare"] { color: rgba(242, 251, 255, .55); }
+  .guide-tab[data-tab="rare"]:hover { color: rgba(242, 251, 255, .85); }
+  .guide-tab[data-tab="rare"][aria-pressed="true"] {
+    color: #07131f;
+    background: var(--rare);
+    box-shadow: 0 0 14px rgba(242, 251, 255, .45);
+  }
+  .tab-n {
+    margin-left: 7px;
+    font-weight: 400;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: 0;
+    opacity: .8;
+  }
+  #btn-guide-close {
+    position: absolute;
+    top: 9px;
+    right: 13px;
+    padding: 3px 11px;
+    line-height: 1.15;
+  }
+  /* 기록 지우기. 창을 띄우는 대신 단추가 스스로 되묻는다 - 이 페이지에는
+     확인 창이 하나도 없고, 그 담백함을 여기서 깨고 싶지 않았다. */
+  #btn-guide-reset {
+    position: absolute;
+    top: 9px;
+    right: 52px;
+    padding: 3px 11px;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .06em;
+    line-height: 1.35;
+    color: var(--ink-faint);
+    background: none;
+  }
+  #btn-guide-reset:hover { color: var(--ink-dim); }
+  #btn-guide-reset.armed { color: var(--sand); border-color: var(--sand); }
+  .guide-grid {
+    overflow-y: auto;
+    padding: 14px 15px 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(272px, 100%), 1fr));
+    gap: 12px;
+    /* align-items: start 였다. 그래서 한 줄 안에서도 칸마다 높이가 달랐다 -
+       도안이 한 행(><>)부터 열세 행(해마)까지라 들쭉날쭉했다. 늘려서 맞춘다. */
+    align-items: stretch;
+  }
+  .sp {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 12px 13px 13px;
+    background: #0e1c2b;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+  }
+  /* 방금 올린 종. 도감을 열면 그 칸이 먼저 눈에 들어와야 한다. */
+  /* 카드를 누르면 그 물로 내려간다. 눌러도 되는 것임을 커서와 테두리로 알린다. */
+  .sp { cursor: pointer; transition: border-color .15s ease; }
+  .sp:hover { border-color: var(--ink-faint); }
+  @media (prefers-reduced-motion: reduce) { .sp { transition: none; } }
+  .sp--lit, .sp--lit:hover { border-color: var(--lure); }
+  /* 아직 못 잡은 종. 도안만 블록으로 덮이고 나머지는 그대로 읽힌다. */
+  .sp--unknown .sp-art { opacity: .55; }
+  .sp-rare {
+    margin-left: 7px;
+    font-style: normal;
+    color: var(--rare);
+  }
+  /* 도안 칸의 높이를 못 박는다. 글자 크기는 스크립트가 도안의 가로·세로에서
+     계산해 넣으므로, 한 행짜리 물고기부터 서른두 행 메갈로돈까지 같은 칸에
+     통째로 들어온다. */
+  .sp-art {
+    margin: 0;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    line-height: 1.15;
+    white-space: pre;
+    overflow: hidden;
+  }
+  .sp-name {
+    margin: 0;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--ink);
+  }
+  .sp-tally {
+    margin-left: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--sand);
+    white-space: nowrap;
+  }
+  .sp-tally--none { color: var(--ink-faint); }
+  /* 희귀 탭·희귀 쪽지에서는 집계도 희귀색으로. 금색이 섞이면 무엇을 세는
+     칸인지 흐려진다. */
+  .sp-tally--rare { color: var(--rare); }
+
+  /* ---- 칭호 칸 ----
+     생물 칸과 달리 그림이 없다. 표 하나와 이름, 한 줄 설명뿐이라 낮고 넓다. */
+  .guide-grid--titles { grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
+  /* 트로피 탭은 바깥 격자가 칸을 나누지 않는다. 잔 한 줄, 단계 한 줄씩
+     세로로만 쌓이고, 넷으로 나누는 일은 그 안에서 한다. */
+  .guide-grid--trophies { grid-template-columns: 1fr; gap: 16px; }
+  .tcard {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 11px;
+    align-items: baseline;
+    padding: 12px 14px 13px;
+    background: #0e1c2b;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+  }
+  .tcard-box {
+    grid-row: 1 / 3;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .tcard--got { border-color: rgba(255, 226, 122, .45); }
+  .tcard--got .tcard-box { color: var(--lure); }
+  .tcard--got .tcard-name { color: var(--lure); }
+  .tcard-name {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--ink-dim);
+  }
+  .tcard-name.big {
+    margin: 0 0 5px;
+    font-size: 17px;
+    color: var(--lure);
+    text-shadow: 0 0 12px rgba(255, 226, 122, .55);
+  }
+  .tcard-note { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--ink-faint); }
+
+  /* ---- 트로피 ----
+     칭호는 '무엇을 했는가'라 열두 칸이 따로 서지만, 트로피는 '얼마나 했는가'라
+     자리는 둘뿐이고 그 안에서 단계만 오른다. 그래서 칭호 목록 위에 한 줄로
+     얹는다 - 칭호와 나란히 두면 칸이 열둘로 보여 무엇이 단계인지 흐려진다. */
+  .trophies {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+    gap: 10px;
+    margin: 0 0 2px;
+  }
+  .trophy {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1px 12px;
+    align-items: center;
+    padding: 11px 14px 12px;
+    background: #0e1c2b;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+  }
+  .trophy-cup {
+    grid-row: 1 / 4;
+    width: 44px;
+    height: 44px;
+    align-self: center;
+    color: #1d3145;          /* 아직 못 받은 잔. 있는 줄은 알되 비어 보여야 한다 */
+  }
+  .trophy-name { margin: 0; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+  .trophy-count {
+    margin: 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 19px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+    color: var(--ink-dim);
+  }
+  .trophy-next { margin: 0; font-size: 10.5px; letter-spacing: .04em; color: var(--ink-faint); }
+  /* 단계마다 색. 동 - 은 - 금, 그리고 마지막 한 칸만 변이색이다. 이 페이지에서
+     그 색은 '몇 백 번에 한 번'을 뜻하므로, 트로피에서도 맨 끝에만 쓴다.
+     색은 한 곳에만 적는다. 잔·목록 칸·수상 화면이 같은 변수를 읽어야, 세 곳에
+     같은 색을 세 번 적다가 한 곳만 어긋나는 일이 없다. */
+  .trophy--t1, .tiercard--t1, .award--t1 { --tc: #c98a4b; --tc-line: rgba(184, 115, 51, .55); --tc-glow: rgba(201, 138, 75, .55); }
+  .trophy--t2, .tiercard--t2, .award--t2 { --tc: #cfd8e0; --tc-line: rgba(198, 208, 216, .5);  --tc-glow: rgba(207, 216, 224, .5); }
+  .trophy--t3, .tiercard--t3, .award--t3 { --tc: #ffe27a; --tc-line: rgba(255, 226, 122, .55); --tc-glow: rgba(255, 226, 122, .6); }
+  .trophy--t4, .tiercard--t4, .award--t4 { --tc: #f2fbff; --tc-line: rgba(242, 251, 255, .6);  --tc-glow: rgba(242, 251, 255, .65); }
+  .trophy--t1, .trophy--t2, .trophy--t3, .trophy--t4 { border-color: var(--tc-line); }
+  .trophy--t1 .trophy-cup, .trophy--t2 .trophy-cup,
+  .trophy--t3 .trophy-cup, .trophy--t4 .trophy-cup {
+    color: var(--tc);
+    filter: drop-shadow(0 0 7px var(--tc-glow));
+  }
+  .trophy--t1 .trophy-count, .trophy--t2 .trophy-count,
+  .trophy--t3 .trophy-count, .trophy--t4 .trophy-count { color: var(--tc); }
+  /* 받은 트로피는 눌러서 다시 볼 수 있다. 누를 수 있다는 것은 손이 알아야 한다. */
+  .trophy--t1, .trophy--t2, .trophy--t3, .trophy--t4 { cursor: pointer; }
+  .trophy--t1:hover, .trophy--t2:hover, .trophy--t3:hover, .trophy--t4:hover {
+    background: #122435;
+    box-shadow: 0 0 0 1px var(--tc-line), 0 0 18px var(--tc-glow);
+  }
+  /* ---- 유인 줄 ----
+     칭호를 모으면 무엇이 달라지는지 적어 두는 자리. 꺼져 있을 때는 조용한
+     한 줄이고, 켜지면 메갈로돈 색으로 숨쉰다 - 이 페이지에서 그 하늘색은
+     그것 하나를 뜻하므로, 여기서도 다른 무엇에도 빌려주지 않는다. */
+  .lure {
+    grid-column: 1 / -1;
+    padding: 12px 15px 13px;
+    background: #0e1c2b;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+  }
+  .lure-head { margin: 0; font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--ink-dim); }
+  .lure-note { margin: 5px 0 0; font-size: 11px; color: var(--ink-faint); }
+  .lure--on {
+    border-color: rgba(168, 230, 255, .55);
+    box-shadow: 0 0 20px rgba(168, 230, 255, .2);
+    animation: lureGlow 2.6s ease-in-out infinite;
+  }
+  .lure--on .lure-head { color: #a8e6ff; text-shadow: 0 0 12px rgba(168, 230, 255, .55); }
+  @keyframes lureGlow {
+    0%, 100% { box-shadow: 0 0 14px rgba(168, 230, 255, .16); }
+    50%      { box-shadow: 0 0 30px rgba(168, 230, 255, .34); }
+  }
+  @media (prefers-reduced-motion: reduce) { .lure--on { animation: none; } }
+
+  /* ---- 트로피 단계 줄 ----
+     처음에는 칭호 칸을 그대로 빌려 썼는데, 칭호 칸은 자동 채움 격자라 여덟
+     칸이 3+3+2 로 접혔다. 동·은·금이 갈라지고 '잡은 물고기 · 흰빛' 이 남은
+     자리를 메우러 다음 줄로 넘어가, 무엇이 한 벌인지 알 수가 없었다.
+     그래서 트로피마다 제 줄을 준다 - 이름을 머리에 한 번 얹고, 네 단계를
+     그 아래 한 줄에 나란히 세운다. 메달이 나란히 놓인 모습이 되어야 한다. */
+  .tier-row { grid-column: 1 / -1; }
+  .tier-head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin: 4px 0 9px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .tier-head b {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    color: var(--ink-faint);
+  }
+  /* 넷은 늘 넷이다. 좁아지면 둘씩 접어 동·은 / 금·흰빛 로 나뉜다 - 셋씩
+     접히면 다시 한 벌이 갈라진다. */
+  .tier-line { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 620px) { .tier-line { grid-template-columns: repeat(2, 1fr); } }
+  /* 단계 한 칸. 잔이 위, 이름이 그 아래, 조건이 맨 아래 - 가로로 넷이 서니
+     세로로 읽히는 편이 낫다. */
+  .tiercard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px 13px;
+    text-align: center;
+    background: #0e1c2b;
+    border: 1px solid var(--rail-line);
+    border-radius: 6px;
+  }
+  .tiercard-cup { width: 34px; height: 34px; color: #1d3145; }
+  .tiercard-name {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+  }
+  .tiercard-need {
+    margin: 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+    opacity: .8;
+  }
+  /* 받은 단계만 제 색으로 켜지고, 누를 수 있다. */
+  .tiercard--got { border-color: var(--tc-line); cursor: pointer; }
+  .tiercard--got .tiercard-cup { color: var(--tc); filter: drop-shadow(0 0 7px var(--tc-glow)); }
+  .tiercard--got .tiercard-name { color: var(--tc); }
+  .tiercard--got:hover {
+    background: #122435;
+    box-shadow: 0 0 0 1px var(--tc-line), 0 0 16px var(--tc-glow);
+  }
+  .catch-card--title {
+    border-color: var(--lure);
+    animation: rise .32s ease both, breatheTitle 1.8s ease-in-out .32s infinite;
+  }
+  @keyframes breatheTitle {
+    0%, 100% { box-shadow: 0 0 14px rgba(255, 226, 122, .22), 0 12px 32px rgba(0, 0, 0, .62); }
+    50%      { box-shadow: 0 0 34px rgba(255, 226, 122, .55), 0 12px 32px rgba(0, 0, 0, .62); }
+  }
+  .catch-tag.title {
+    color: var(--lure);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    padding-right: 62px;      /* 느낌표와 닫기 표 자리 */
+    text-shadow: 0 0 12px rgba(255, 226, 122, .7);
+  }
+  @media (prefers-reduced-motion: reduce) { .catch-card--title { animation: none; } }
+  .sp dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 10px;
+    font-size: 11px;
+    align-items: baseline;
+  }
+  .sp dt { color: var(--ink-faint); letter-spacing: .10em; text-transform: uppercase; }
+  .sp dd {
+    margin: 0;
+    color: var(--ink-dim);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .sp dd.no { color: var(--ink-faint); }
+  .sp dd.yes { color: var(--ink); }
+  .sp-note {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    /* 설명 길이가 칸마다 달라 줄 높이가 들쭉날쭉했다. 네 줄에서 자른다. */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* 설명은 아래에 붙여, 칸이 늘어난 만큼의 빈자리가 글 위로 가게 한다. */
+  .sp dl { margin-top: auto; }
+
+  /* ---- 바다 오른쪽 위의 동그란 손잡이 ----
+     조작줄이 슬라이더까지 세 줄로 빽빽해, 손이 제일 자주 가는 둘만 꺼내
+     바다 위에 세웠다. 수심계는 제 열(grid-column 2)에 따로 서 있고 이 통은
+     바다 칸 안에 있어, 오른쪽 끝에 붙여도 눈금을 가리지 않는다. */
+  .tools {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    /* 이 모서리에서도 물을 눌러 미끼를 옮길 수 있어야 한다. 통은 클릭을
+       흘려보내고, 단추만 받는다. */
+    pointer-events: none;
+  }
+  .tool {
+    pointer-events: auto;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--ink-dim);
+    background: rgba(6, 13, 22, .72);
+    border: 1px solid var(--rail-line);
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .tool svg { width: 21px; height: 21px; display: block; }
+  .tool:hover { color: var(--ink); border-color: var(--ink-faint); }
+  /* 줄이 물에 있는 동안, 도감이 열려 있는 동안 미끼 색으로 켜진다. */
+  .tool[aria-pressed="true"] { color: var(--lure); border-color: var(--lure); }
+  /* 특별 먹이 단추는 있는 것 자체가 보상이라, 늘 미끼색으로 켜져 있다. */
+  .tool--bait { color: var(--lure); border-color: rgba(255, 226, 122, .5); }
+  .tool--bait:hover { border-color: var(--lure); box-shadow: 0 0 16px rgba(255, 226, 122, .4); }
+  /* 배경화면 모드에서도 낚시·잠수함·도감은 쓸 수 있어야 한다. 아주 감추면
+     전체화면에서는 구경만 하게 된다. 나가는 단추와 같은 규칙으로 - 화면을
+     건드리면 떠오르고, 손을 떼고 잠시 있으면 다시 물속으로 잠긴다. */
+  body.bare .tools { opacity: 0; transition: opacity .3s ease; }
+  body.bare .tool { pointer-events: none; }
+  body.bare.awake .tools { opacity: 1; }
+  body.bare.awake .tool { pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) { body.bare .tools { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .tool { transition: none; } }
+
+  /* ---- 낚아 올린 순간의 쪽지 ----
+     바다 안 오른쪽 아래에 선다. 조작줄 높이는 접힘에 따라 달라지므로, 화면이
+     아니라 바다에 붙여야 어디서든 같은 자리에 뜬다. */
+  .catch-card {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 6;
+    width: 268px;
+    max-width: calc(100% - 28px);
+    padding: 12px 13px 13px;
+    background: #0b1724;
+    border: 1px solid var(--sand);
+    border-radius: 6px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .62);
+    cursor: pointer;
+    white-space: normal;
+    animation: rise .32s ease both;
+    /* 바다를 넘지 않는다. 키 큰 도안(해마 13행)이 들어와도 카드가
+       상태줄을 밀고 올라가지 않도록 여기서 잘라 둔다. */
+    max-height: calc(100% - 28px);
+    overflow-y: auto;
+  }
+  /* 쪽지 안의 도안은 조금 작게. 바다가 낮을 때 먼저 줄어야 할 것은 그림이다. */
+  .catch-card .sp-art { font-size: 9.5px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+  /* 변이를 올린 순간. 몇 백 마리에 한 번인 일이라, 여느 쪽지와 같은 모습으로
+     뜨면 그냥 지나친다. 테두리를 희귀색으로 바꾸고 숨쉬듯 빛나게 한다. */
+  .catch-card--rare {
+    border-color: var(--rare);
+    animation: rise .32s ease both, breathe 1.8s ease-in-out .32s infinite;
+  }
+  .catch-card--mega {
+    border-color: #a8e6ff;
+    animation: rise .32s ease both, breatheMega 1.8s ease-in-out .32s infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 14px rgba(242, 251, 255, .22), 0 12px 32px rgba(0, 0, 0, .62); }
+    50%      { box-shadow: 0 0 34px rgba(242, 251, 255, .55), 0 12px 32px rgba(0, 0, 0, .62); }
+  }
+  @keyframes breatheMega {
+    0%, 100% { box-shadow: 0 0 14px rgba(168, 230, 255, .22), 0 12px 32px rgba(0, 0, 0, .62); }
+    50%      { box-shadow: 0 0 34px rgba(168, 230, 255, .55), 0 12px 32px rgba(0, 0, 0, .62); }
+  }
+  .catch-tag.rare, .catch-tag.mega {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    padding-right: 62px;      /* 느낌표와 닫기 표 자리 */
+  }
+  .catch-tag.rare { color: var(--rare); text-shadow: 0 0 12px rgba(242, 251, 255, .75); }
+  /* 쪽지를 손으로 걷는 표. 쪽지는 스스로 걷히지만 그때까지 바다를 가린다 -
+     지금 걷고 싶은 사람에게는 누를 자리가 있어야 한다. 몸통을 누르면 도감이
+     열리므로, 그냥 지우는 일은 이 표에만 맡긴다. */
+  .catch-x {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 2;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-size: 17px;
+    line-height: 1;
+    color: var(--ink-faint);
+    background: none;
+    border: none;
+    border-radius: 5px;
+  }
+  .catch-x:hover { color: var(--ink); background: rgba(255, 255, 255, .09); }
+  /* 귀퉁이의 느낌표. 미끼색 노랑 - 이 페이지에서 '지금 봐야 한다'를 뜻하는 색.
+     닫기 표가 오른쪽 끝을 가져갔으므로 그만큼 안쪽으로 들어온다. */
+  .catch-bang {
+    position: absolute;
+    top: 10px;
+    right: 40px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--lure);
+    color: #191203;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1;
+    box-shadow: 0 0 14px rgba(255, 226, 122, .65);
+  }
+  .catch-tag.mega { color: #a8e6ff; text-shadow: 0 0 12px rgba(168, 230, 255, .75); }
+  @media (prefers-reduced-motion: reduce) {
+    .catch-card, .catch-card--rare, .catch-card--mega { animation: none; }
+  }
+  .catch-card .sp { padding: 0; border: none; background: none; }
+  .catch-tag {
+    margin: 0 0 8px;
+    padding-right: 32px;      /* 닫기 표 자리 */
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--lure);
+  }
+  .catch-tag.first { color: var(--sand); }
+  /* 놓친 쪽지. 잡은 쪽지와 같은 자리에 뜨되 한눈에 갈려야 한다 - 테두리도
+     느낌표도 삼킨 자리에 터지는 그 붉은색으로 바꾼다. */
+  .catch-card--miss {
+    border-color: #ff5f5f;
+    box-shadow: 0 0 20px rgba(255, 95, 95, .3), 0 12px 32px rgba(0, 0, 0, .62);
+  }
+  .catch-tag.miss {
+    color: #ff5f5f;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    padding-right: 62px;      /* 느낌표와 닫기 표 자리 */
+    text-shadow: 0 0 12px rgba(255, 95, 95, .6);
+  }
+  .tcard-name.big.miss { color: #ff9f9f; }
+  .catch-bang.miss { background: #ff5f5f; color: #2b0808; box-shadow: 0 0 14px rgba(255, 95, 95, .65); }
+  .catch-more { margin: 9px 0 0; font-size: 10.5px; letter-spacing: .04em; color: var(--ink-faint); }
+
+
+  /* ---- 수상 화면 ----
+     받은 트로피를 누르면 도감 위로 한 장 더 뜬다. 목록에서는 여덟 칸 중
+     하나지만 여기서는 그 하나뿐이라, 상을 받는 자리처럼 보이게 한다. */
+  .award {
+    position: fixed;
+    inset: 0;
+    z-index: 24;              /* 도감(20) 위 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(14px, var(--safe-t)) max(14px, var(--safe-r)) max(14px, var(--safe-b)) max(14px, var(--safe-l));
+    background: rgba(1, 5, 11, .88);
+    animation: awardIn .22s ease both;
+  }
+  @keyframes awardIn { from { opacity: 0; } }
+  .award-card {
+    position: relative;
+    width: min(430px, 100%);
+    padding: 34px 28px 26px;
+    text-align: center;
+    background: #0b1724;
+    border: 1px solid var(--tc-line);
+    border-radius: 10px;
+    box-shadow: 0 0 34px var(--tc-glow), 0 22px 60px rgba(0, 0, 0, .7);
+    overflow: hidden;
+    animation: awardPop .42s cubic-bezier(.16, 1.06, .3, 1) both;
+  }
+  @keyframes awardPop { from { opacity: 0; transform: scale(.86) translateY(14px); } }
+  /* 잔 뒤에서 도는 빛살. 원뿔 그라디언트 한 겹이면 충분하다 - 색종이를
+     뿌리는 것보다 이 페이지의 다른 빛(발광구, 탐조등)과 결이 맞는다. */
+  .award-burst {
+    position: absolute;
+    top: -96px;
+    left: 50%;
+    width: 420px;
+    height: 420px;
+    margin-left: -210px;
+    pointer-events: none;
+    opacity: .3;
+    background: conic-gradient(from 0deg, var(--tc-glow) 0deg 7deg, transparent 7deg 30deg,
+                               var(--tc-glow) 30deg 37deg, transparent 37deg 60deg,
+                               var(--tc-glow) 60deg 67deg, transparent 67deg 90deg,
+                               var(--tc-glow) 90deg 97deg, transparent 97deg 120deg,
+                               var(--tc-glow) 120deg 127deg, transparent 127deg 150deg,
+                               var(--tc-glow) 150deg 157deg, transparent 157deg 180deg,
+                               var(--tc-glow) 180deg 187deg, transparent 187deg 210deg,
+                               var(--tc-glow) 210deg 217deg, transparent 217deg 240deg,
+                               var(--tc-glow) 240deg 247deg, transparent 247deg 270deg,
+                               var(--tc-glow) 270deg 277deg, transparent 277deg 300deg,
+                               var(--tc-glow) 300deg 307deg, transparent 307deg 330deg,
+                               var(--tc-glow) 330deg 337deg, transparent 337deg 360deg);
+    mask-image: radial-gradient(closest-side, #000 12%, rgba(0, 0, 0, .55) 42%, transparent 72%);
+    animation: awardSpin 22s linear infinite;
+  }
+  @keyframes awardSpin { to { transform: rotate(360deg); } }
+  /* 잔은 제 칸을 꽉 채운다. width/height 를 안 주면 브라우저 기본값(300x150)
+     으로 퍼져 칸을 밀어낸다 - viewBox 만으로는 크기가 정해지지 않는다. */
+  .trophy-cup, .tiercard-cup { display: block; }
+  .award-cup svg { display: block; width: 100%; height: 100%; }
+  .award-cup {
+    position: relative;
+    width: 128px;
+    height: 128px;
+    margin: 0 auto 6px;
+    color: var(--tc);
+    filter: drop-shadow(0 0 16px var(--tc-glow));
+    animation: awardGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes awardGlow {
+    0%, 100% { filter: drop-shadow(0 0 12px var(--tc-glow)); transform: translateY(0); }
+    50%      { filter: drop-shadow(0 0 30px var(--tc-glow)); transform: translateY(-4px); }
+  }
+  .award-tag {
+    position: relative;
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    color: var(--tc);
+    text-shadow: 0 0 16px var(--tc-glow);
+  }
+  .award-name {
+    position: relative;
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .award-count {
+    position: relative;
+    margin: 0 0 4px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 40px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .award-count i { font-size: 14px; font-style: normal; color: var(--ink-faint); margin-left: 4px; }
+  .award-note { position: relative; margin: 0 0 22px; font-size: 11.5px; color: var(--ink-faint); }
+  .award-close {
+    position: relative;
+    padding: 9px 26px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    background: #12283b;
+    border: 1px solid var(--rail-line);
+    border-radius: 5px;
+  }
+  .award-close:hover { color: var(--ink); border-color: var(--tc-line); }
+  @media (prefers-reduced-motion: reduce) {
+    .award, .award-card, .award-burst, .award-cup { animation: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .gauge-view { transition: none; } }
+
+/* 3D model previews retain the original field-guide card dimensions. */
+.sp-art { display:block; width:100%; height:92px; object-fit:contain; padding:3px 8px; }
+.sp-art--locked { filter: brightness(0) invert(33%) sepia(10%) saturate(1300%) hue-rotate(169deg); opacity:.65; }
+.sea-loading { position:fixed; z-index:200; inset:0; display:grid; place-content:center; gap:14px; padding:24px; text-align:center; background:radial-gradient(ellipse at 50% 15%,#083c50,#01050b 75%); color:var(--ink); }
+.sea-loading__mark { color:var(--surface); font-size:12px; letter-spacing:.3em; text-transform:uppercase; }
+.sea-loading h1 { font:400 34px 'IBM Plex Sans Condensed',sans-serif; margin:0; }
+.sea-loading p { margin:0; max-width:460px; font-size:12px; line-height:1.6; color:#a9c7d3; }
+.sea-loading progress { width:min(300px,75vw); height:3px; margin:12px auto; accent-color:#00d7ff; }
+.sea-loading button { justify-self:center; padding:8px 18px; }
+
+.sp[role="button"] { cursor:pointer; }
+.sp[role="button"]:focus-visible { outline:2px solid var(--surface); outline-offset:-2px; }
