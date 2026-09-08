@@ -314,7 +314,7 @@
   .escape-out {
     position: fixed;
     /* 배경화면 모드에서는 오른쪽 위에 아이콘 줄이 함께 뜬다. 그 아래로 내린다. */
-    top: calc(12px + var(--safe-t) + 3 * 42px + 2 * 9px + 14px);
+    top: calc(var(--bar-h) + 12px + var(--safe-t) + 3 * 42px + 2 * 9px + 14px);
     right: calc(12px + var(--safe-r));
     z-index: 6;
     display: none;
@@ -1143,3 +1143,28 @@
 
 .sp[role="button"] { cursor:pointer; }
 .sp[role="button"]:focus-visible { outline:2px solid var(--surface); outline-offset:-2px; }
+
+/* Both views occupy the same input surface and never change the ocean layout. */
+.sea-surface { position:absolute; inset:0; touch-action:none; cursor:pointer; }
+.sea-surface canvas { position:absolute; inset:0; }
+.sea-surface canvas[hidden] { display:none; }
+body.rod .sea-surface { cursor:crosshair; }
+#btn-view { flex-shrink:0; min-width:44px; }
+/* The title and view controls float over the full sea only while awake. */
+body.bare .bar--top { display:flex; position:fixed; inset:0 0 auto; z-index:7; padding-right:max(14px,var(--safe-r)); background:rgba(6,13,22,.9); opacity:0; pointer-events:none; transition:opacity .3s ease; }
+body.bare.awake .bar--top, body.bare .bar--top:focus-within { opacity:1; pointer-events:auto; }
+body.bare .tools { top:calc(var(--bar-h) + var(--safe-t) + 14px); }
+body.bare:has(#btn-bait:not([hidden])) .escape-out { top:calc(var(--bar-h) + 12px + var(--safe-t) + 4 * 42px + 3 * 9px + 14px); }
+@media (max-width:380px) {
+  .bar--top { gap:8px; font-size:11px; }
+  .mark { letter-spacing:.03em; }
+}
+.sp-visual { width:100%; height:92px; flex-shrink:0; }
+.sp-art.sp-art--ascii { display:flex; align-items:center; justify-content:center; height:92px; margin:0; padding:0; overflow:hidden; white-space:pre; font-family:"IBM Plex Mono",ui-monospace,monospace; line-height:1.15; text-align:left; }
+.sea-loading { position:absolute; z-index:7; inset:auto; top:14px; left:14px; display:grid; place-content:initial; gap:8px; max-width:min(330px,calc(100% - 90px)); padding:12px 14px; border:1px solid var(--rail-line); border-radius:9px; text-align:left; background:rgba(6,13,22,.94); pointer-events:none; }
+.sea-loading h1 { font:500 12px/1.5 "IBM Plex Mono",ui-monospace,monospace; margin:0; }
+.sea-loading p { font-size:11px; line-height:1.5; }
+.sea-loading progress { width:100%; height:3px; margin:0; }
+.sea-loading button { justify-self:start; min-height:36px; font-size:11px; pointer-events:auto; }
+body.bare .sea-loading { top:calc(var(--bar-h) + var(--safe-t) + 14px); }
+@media (prefers-reduced-motion:reduce) { body.bare .bar--top { transition:none; } }

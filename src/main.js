@@ -1,32 +1,13 @@
 import './styles.css';
-import { SeaRenderer } from './render/sea-renderer.js';
-import { Ocean, DATA, SPECIES, CATCHABLE, guideId, SPEED_DEFAULT, LURE, ROD } from './game/ocean.js';
+import { AsciiRenderer, speciesArt } from './render/ascii-renderer.js';
+import { ViewManager } from './render/view-manager.js';
+import { waterColor } from './render/water.js';
+import { Ocean, DATA, SPECIES, CATCHABLE, guideId, SPEED_DEFAULT, LURE, ROD, RARE_COLOR } from './game/ocean.js';
 import { GUIDE, TITLES, TROPHIES, TROPHY_GOT, TROPHY_ALL, LURE_IDS, trophyKey, trophyState, tallyRecords, earnedTitles } from './game/progression.js';
-import { loadCounts, loadSliderValues } from './game/storage.js';
+import { loadCounts, loadSliderValues, loadViewMode, saveViewMode } from './game/storage.js';
 import { LANG_KEY, lang, T, spText, tiText, setLanguageState } from './ui/i18n.js';
 
-const RED_WATER = [
-  [0.00, [150, 26, 22]], [0.18, [126, 21, 18]], [0.35, [104, 17, 15]],
-  [0.55, [80, 13, 12]],  [0.72, [58, 9, 9]],    [0.88, [34, 5, 6]],
-  [1.00, [12, 2, 3]],
-];
-const WATER = [
-  [0.00, [8, 74, 108]], [0.18, [7, 60, 90]], [0.35, [6, 46, 70]],
-  [0.55, [4, 32, 51]],  [0.72, [3, 20, 34]], [0.88, [2, 11, 19]],
-  [1.00, [1, 4, 8]],
-];
-function water(f) {
-  f = Math.max(0, Math.min(1, f));
-  const ramp = redTide ? RED_WATER : WATER;
-  for (let i = 1; i < ramp.length; i++) {
-    if (f <= ramp[i][0]) {
-      const [a, ca] = ramp[i - 1], [b, cb] = ramp[i];
-      const t = (f - a) / (b - a);
-      return `rgb(${ca.map((v, j) => Math.round(v + (cb[j] - v) * t)).join(",")})`;
-    }
-  }
-  return redTide ? "rgb(12,2,3)" : "rgb(1,5,11)";
-}
+const water = f => waterColor(f, redTide);
 
 const zoneName = f => {
   let n = DATA.zones[0][1];
@@ -34,7 +15,10 @@ const zoneName = f => {
   return n;
 };
 
-const canvas = document.getElementById("c");
+// Input remains on the same surface while the presentation canvases change.
+const canvas = document.getElementById('sea-surface');
+const canvas3d = document.getElementById('c');
+const canvas2d = document.getElementById('c-ascii');
 const ctx = document.createElement("canvas").getContext("2d");
 let renderer = null;
 let ready = false, failed = false;
@@ -58,11 +42,11 @@ for (const k of ["fish", "sharks", "coral", "starfish", "seaweed", "speed"]) {
 
 let FONT = 15, cw = 9, chh = 18, cols = 80, rows = 24, cssW = 0, cssH = 0;
 let ocean = null, depth = 0, cam = 0, camTarget = 0, last = 0;
-let clock = 0, paused = false, waterOn = true, rodLit = false;
+let clock = 0, motion = 0, paused = false, waterOn = true, rodLit = false;
 let baitAt = 0, baitSaid = null;   // 먹이를 뿌린 시각과 그 결과. 안내줄이 읽는다
 
 function measure() {
-
+  const previous = [cssW, cssH, cw, chh].join(',');
   const box = canvas.parentElement.getBoundingClientRect();
 
   FONT = box.width < 620 ? 11 : 15;
@@ -73,6 +57,7 @@ function measure() {
   rows = Math.max(10, Math.floor(box.height / chh));
   cssW = box.width;       // 물빛을 칠할 때 쓴다. device px 이 아니라 CSS px 이어야 한다
   cssH = box.height;      // 행으로 나누어떨어지지 않고 남는 아래 띠를 재려면 필요하다
+  return previous !== [cssW, cssH, cw, chh].join(',');
 }
 const depthFrac = () => {
   const wasFloor = ocean ? Math.max(0, depth - rows) : 0;
@@ -82,7 +67,8 @@ const depthFrac = () => {
 function build() {
   if (!ready) return;
   const frac = depthFrac();
-  measure();
+  const changed = measure();
+  if (ocean && !changed) return;
   depth = Math.max(rows, rows * 5);
   ocean = new Ocean(cols, depth, rows);
   ocean.nextMeal += clock;
@@ -92,8 +78,9 @@ function build() {
   showCounts();
   syncSubBtn();          // 새 바다에는 잠수함이 없다. 버튼도 꺼진 채로 돌아간다
   layoutGauge();
-  renderer.resize({width:cssW,height:cssH,cols,rows,depth,cw,chh});
+  resizeRenderers();
 }
+function resizeRenderers() { renderer.resize({width:cssW,height:cssH,cols,rows,depth,cw,chh,fontSize:FONT}); }
 let rebuildTimer = null;
 const rebuildSoon = (ms = 150) => {
   clearTimeout(rebuildTimer);
@@ -112,7 +99,7 @@ function restock() {
   applyCounts();
   syncSubBtn();          // 새 바다에는 잠수함이 없다. 버튼도 꺼진 채로 돌아간다
   layoutGauge();
-  renderer.resize({width:cssW,height:cssH,cols,rows,depth,cw,chh});
+  resizeRenderers();
 }
 const SLIDER_KEY = "atsea.sliders";
 function loadSliders() { return loadSliderValues(Object.keys(ui)); }
@@ -175,7 +162,7 @@ function frame(now, reschedule = true) {
   const dt = Math.max(0, Math.min(200, now - last));
   const u = Math.max(0, Math.min(4, dt / (1000 / (+ui.speed.value || SPEED_DEFAULT))));
   last = Math.max(last, now);
-  if (!paused) clock += Math.min(200, dt) / 1000;
+  if (!paused) { clock += Math.min(200, dt) / 1000; motion += u; }
   const floorMax = Math.max(0, depth - rows);
   const camRow0 = Math.round(cam);
   camTarget = Math.max(0, Math.min(floorMax, camTarget));
@@ -198,7 +185,7 @@ function frame(now, reschedule = true) {
   for (const b of ocean.groups.shark)
     if (b.rare && !b.logged && onScreen(b)) { b.logged = true; spottedRare(b); }
 
-  renderer.render({ocean,cam,cols,rows,depth,clock,waterOn,redTide,paused,dt:paused ? 0 : Math.min(200,dt)/1000});
+  renderer.render({ocean,cam,cols,rows,depth,clock,motion,waterOn,redTide,paused,dt:paused ? 0 : Math.min(200,dt)/1000});
   const camRow = Math.round(cam);
 
   const frac = floorMax ? camRow / floorMax : 0;
@@ -487,6 +474,26 @@ const saveGuide = () => {
     localStorage.setItem(STAT_KEY, JSON.stringify(statLog));
   } catch { /* Storage/fullscreen may be unavailable. */ }
 };
+function speciesArtwork(entry, rare, locked) {
+  const [kind, shape, color] = entry, id = guideId(kind, shape);
+  const name = esc(spText(id)[0]);
+  if (renderer.mode === '3d') return '<img class="sp-art' + (locked ? ' sp-art--locked' : '') +
+    '" src="' + renderer.getThumbnail(id, {rare,locked}) + '" alt="' + name + '" width="250" height="92">';
+  const art = speciesArt(kind, shape);
+  const width = Math.max(...art.map(line => line.length));
+  const size = Math.max(4.5, Math.min(11, 88 / (art.length * 1.15), 250 / (width * .6)));
+  const lines = locked ? art.map(line => line.replace(/[^ ]/g, '█')) : art;
+  const shade = locked ? 'var(--ink-faint)' : rare && CATCHABLE.includes(kind) ? RARE_COLOR : color;
+  return '<pre class="sp-art sp-art--ascii" role="img" aria-label="' + name + '" style="color:' +
+    shade + ';font-size:' + size.toFixed(1) + 'px">' + esc(lines.join('\n')) + '</pre>';
+}
+function refreshSpeciesArtwork() {
+  // Leave timers, focused cards, scrolling, record counts and awards intact.
+  for (const el of document.querySelectorAll('[data-art-id]')) {
+    const entry = GUIDE.find(e => guideId(e[0], e[1]) === el.dataset.artId);
+    if (entry) el.innerHTML = speciesArtwork(entry, el.dataset.artRare === 'true', el.dataset.artLocked === 'true');
+  }
+}
 function speciesCard(entry, lit, mode) {
   const [kind, shape] = entry;
   const id = guideId(kind, shape);
@@ -503,7 +510,7 @@ function speciesCard(entry, lit, mode) {
                   (r ? `<em class="sp-rare">${T("g.rare")} &times;${r}</em>` : "")
                 : T("c.notyet"));
   return `<article class="sp${lit ? " sp--lit" : ""}${seen ? "" : " sp--unknown"}" data-id="${id}" data-kind="${kind}" role="button" tabindex="0" aria-label="${esc(name)} · ${bandText(kind)}">
-    <img class="sp-art${seen ? "" : " sp-art--locked"}" src="${renderer.getThumbnail(id, {rare:rareMode,locked:!seen})}" alt="${esc(name)}${seen ? "" : " silhouette"}" width="250" height="92">
+    <div class="sp-visual" data-art-id="${id}" data-art-rare="${rareMode}" data-art-locked="${!seen}">${speciesArtwork(entry, rareMode, !seen)}</div>
     <h3 class="sp-name">${name}<span class="sp-tally${(rareMode ? r : n) ? (rareMode ? " sp-tally--rare" : "") : " sp-tally--none"}">${tally}</span></h3>
     <dl>
       <dt>${T("c.depth")}</dt><dd>${bandText(kind)}</dd>
@@ -954,7 +961,7 @@ function paintLang() {
   guideBtn.title = `${T("g.title")} (D)`;     guideBtn.setAttribute("aria-label", T("g.title"));
   document.getElementById("btn-guide-close").setAttribute("aria-label", T("g.close"));
   helpBtn.setAttribute("aria-label", T("a.keys"));
-  document.querySelector("main.sea").setAttribute("aria-label", T("a.sea"));
+  paintViewUI();
   document.querySelector(".guide-card").setAttribute("aria-label", T("g.title"));
   keyStrip.innerHTML = [
     ["Space", "keys.pause"], ["N", "keys.refresh"], ["T", "keys.water"],
@@ -986,58 +993,103 @@ const loading = document.getElementById('sea-loading');
 const loadingLabel = document.getElementById('sea-loading-label');
 const loadingProgress = document.getElementById('sea-loading-progress');
 const retryButton = document.getElementById('sea-retry');
-let startupRevision = 0;
+const viewButton = document.getElementById('btn-view');
+let preferredMode = loadViewMode();
+let modelProgress = { loaded: 0, total: 21 };
+
+function paintViewUI() {
+  if (!renderer) return;
+  const { mode, requestedMode, status } = renderer;
+  canvas2d.hidden = mode !== '2d'; canvas3d.hidden = mode !== '3d';
+  document.body.dataset.view = mode;
+  const titlePrefix = mode === '2d' ? 'ASCII' : 'Animated';
+  document.getElementById('sea-title-prefix').textContent = titlePrefix;
+  document.title = 'At Sea — ' + titlePrefix + ' Tropical Sea';
+  canvas.setAttribute('aria-label', T('view.' + mode));
+  document.querySelector('main.sea').setAttribute('aria-label', T('view.' + mode));
+  const switching = requestedMode === '3d' && status === 'loading';
+  const target = switching || mode === '3d' ? '2d' : '3d';
+  viewButton.dataset.viewMode = target;
+  viewButton.textContent = target.toUpperCase();
+  viewButton.setAttribute('aria-busy', String(switching));
+  const action = T(switching ? 'view.cancel' : 'view.switch' + target);
+  viewButton.setAttribute('aria-label', action);
+  viewButton.title = action;
+  loading.hidden = requestedMode !== '3d' || (status !== 'loading' && status !== 'error');
+  loading.querySelector('h1').textContent = T(status === 'error' ? 'view.error' : 'view.loading');
+  loadingLabel.textContent = status === 'error' ? T('view.fallback') : modelProgress.loaded + ' / ' + modelProgress.total;
+  loadingProgress.hidden = status !== 'loading';
+  loadingProgress.max = modelProgress.total;
+  loadingProgress.value = modelProgress.loaded;
+  loadingProgress.setAttribute('aria-label', T('view.loading'));
+  retryButton.hidden = status !== 'error';
+  retryButton.textContent = T('view.retry');
+}
+
+async function setRenderMode(mode, persist = true) {
+  const current = renderer;
+  const success = await current.setMode(mode);
+  if (success && renderer === current && current.mode === mode && current.requestedMode === mode && persist) {
+    preferredMode = mode;
+    saveViewMode(mode);
+  }
+  return success;
+}
+viewButton.onclick = () => setRenderMode(viewButton.dataset.viewMode);
+
 function showFailure(error) {
-  startupRevision++;
   ready = false; failed = true;
   cancelAnimationFrame(rafId);
   loading.hidden = false;
-  loading.querySelector('h1').textContent = lang === 'ko' ? '바다를 불러오지 못했습니다' : 'The ocean could not load';
-  loadingLabel.textContent = lang === 'ko' ? '3D 화면이나 모델을 불러오지 못했습니다. 다시 시도해 주세요.' : 'The 3D scene or a model could not load. Please try again.';
+  loading.querySelector('h1').textContent = T('view.error');
+  loadingLabel.textContent = T('view.fallback');
   loadingProgress.hidden = true; retryButton.hidden = false;
-  console.error('At Sea 3D:', error);
+  console.error('At Sea:', error);
 }
-async function start() {
-  const revision = ++startupRevision;
-  let nextRenderer;
-  ready = false; failed = false;
+
+function start() {
   cancelAnimationFrame(rafId);
-  loading.hidden = false; loadingProgress.hidden = false; retryButton.hidden = true;
-  loadingProgress.value = 0;
-  loading.querySelector('h1').textContent = lang === 'ko' ? '바다를 준비하고 있습니다' : 'Preparing the ocean';
-  try {
-    if (renderer) renderer.dispose();
-    nextRenderer = new SeaRenderer(canvas);
-    renderer = nextRenderer;
-    await nextRenderer.init(({loaded,total}) => {
-      if (revision !== startupRevision) return;
-      loadingProgress.max = Math.max(1,total); loadingProgress.value=loaded;
-      loadingLabel.textContent = (lang === 'ko' ? '생물 불러오는 중 · ' : 'Loading creatures · ') + loaded + '/' + total;
-    });
-    if (revision !== startupRevision) { nextRenderer.dispose(); return; }
-    ready = true; last = performance.now();
-    paintPanel(loadPanel()); build(); paintLang(); refreshMegaLure();
+  renderer?.dispose();
+  renderer = new ViewManager({
+    ascii: new AsciiRenderer(canvas2d),
+    create3d: async () => {
+      const { SeaRenderer } = await import('./render/sea-renderer.js');
+      return new SeaRenderer(canvas3d);
+    },
+    onChange: () => { paintViewUI(); refreshSpeciesArtwork(); },
+    onStatus: (_status, progress) => { if (progress) modelProgress = progress; paintViewUI(); },
+    onError: error => console.warn('At Sea: continuing in ASCII 2D.', error),
+  });
+  ready = true; failed = false; last = performance.now();
+  if (!ocean) {
+    paintPanel(loadPanel());
+    build();
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) setPaused(true);
-    loading.hidden = true;
-    schedule();
-  } catch(error) {
-    if (revision !== startupRevision) { nextRenderer?.dispose(); return; }
-    showFailure(error);
-  }
+  } else resizeRenderers();
+  paintLang(); refreshMegaLure(); paintViewUI(); refreshSpeciesArtwork();
+  schedule();
+  setRenderMode(preferredMode, false);
 }
-retryButton.onclick = start;
-canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); showFailure(new Error('WebGL context lost')); });
-canvas.addEventListener('webglcontextrestored', () => { if (failed) start(); });
-addEventListener('pagehide', () => { startupRevision++; ready = false; cancelAnimationFrame(rafId); renderer?.dispose(); });
-addEventListener('pageshow', event => { if(event.persisted) start(); });
+retryButton.onclick = () => { if (failed) start(); else setRenderMode('3d'); };
+canvas3d.addEventListener('webglcontextlost', event => {
+  event.preventDefault();
+  if (ready && !renderer.disposed) renderer.fail3d(new Error('WebGL context lost'));
+});
+canvas3d.addEventListener('webglcontextrestored', () => {
+  if (ready && renderer.requestedMode === '3d' && renderer.status === 'error') setRenderMode('3d', false);
+});
+addEventListener('pagehide', () => { ready = false; cancelAnimationFrame(rafId); renderer?.dispose(); });
+addEventListener('pageshow', event => { if (event.persisted) start(); });
+// Re-measure without rebuilding an unchanged sea or calculating depth from new rows.
 if (document.fonts?.ready) document.fonts.ready.then(() => { if (ready) build(); });
+
 if (import.meta.env.DEV || import.meta.env.VITE_E2E === 'true') {
-  const snapshot = () => ({ready,failed,cam,camTarget,depth,rows,cols,depthFraction:depthFrac(),paused,waterOn,redTide,clock,lang,rodLit,baitReady,
+  const snapshot = () => ({ready,failed,renderMode:renderer?.mode,requestedRenderMode:renderer?.requestedMode,rendererStatus:renderer?.status,motion,cam,camTarget,depth,rows,cols,depthFraction:depthFrac(),paused,waterOn,redTide,clock,lang,rodLit,baitReady,
     counts:ocean ? Object.fromEntries(Object.entries(ocean.groups).map(([kind,list])=>[kind,list.length])) : {},
     guideLog:{...guideLog},rareLog:{...rareLog},statLog:{...statLog},titleLog:{...titleLog},seenLog:{...seenLog},
     rod:ocean?.rod ? {state:ocean.rod.state,x:ocean.rod.x,tip:ocean.rod.tip,stop:ocean.rod.stop,catch:ocean.rod.catch?.guideId,mark:ocean.rod.mark?.guideId} : null,
     subCount:ocean?.subs.length || 0, renderer: renderer?.getStats?.() || null});
-  window.__ATSEA__ = { getState:snapshot, snapshot, getOcean:()=>ocean, setPaused, restock, setLang, castRod, toggleSub, scatterBait,
+  window.__ATSEA__ = { getState:snapshot, snapshot, getOcean:()=>ocean, setRenderMode, setPaused, restock, setLang, castRod, toggleSub, scatterBait,
     diveToFraction:f=>{ camTarget=Math.max(0,Math.min(1,f))*Math.max(0,depth-rows); },
     step:milliseconds=>{ const target=last+milliseconds; while(last<target) frame(Math.min(target,last+50),false); },
     recordCatch:({kind='fish',shapeIndex=0,rare=false}={})=>{landed({kind,shapeIndex,guideId:guideId(kind,shapeIndex),rare});checkTitles();},

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
+import { decodeEmbeddedModel } from './embedded-models.js';
 
 export const MODEL_IDS = [
   'fish0', 'fish1', 'fish2', 'fish3', 'fish4', 'fish5', 'fish6',
@@ -18,15 +19,20 @@ export class ModelLibrary {
 
   async load(onProgress = () => {}) {
     const loader = new GLTFLoader();
+    const embeddedElement = document.getElementById('sea-embedded-models');
+    const embeddedModels = embeddedElement ? JSON.parse(embeddedElement.textContent) : null;
     let loaded = 0;
     // Limit parse/upload pressure on mobile instead of launching twenty uploads together.
     const pending = [...MODEL_IDS];
     const worker = async () => {
       while (pending.length) {
         const id = pending.shift();
-        const url = `${import.meta.env.BASE_URL}models/${id}.glb`;
         let gltf;
-        try { gltf = await loader.loadAsync(url); }
+        try {
+          gltf = embeddedModels
+            ? await loader.parseAsync(await decodeEmbeddedModel(embeddedModels[id]), '')
+            : await loader.loadAsync(`${import.meta.env.BASE_URL}models/${id}.glb`);
+        }
         catch (cause) { pending.length = 0; throw new Error(`Could not load ${id}.glb`, { cause }); }
         gltf.scene.updateMatrixWorld(true);
         const box = new THREE.Box3().setFromObject(gltf.scene);

@@ -7,7 +7,7 @@ const state = page => page.evaluate(() => window.__ATSEA__.snapshot());
 const depth = async page => Number((await page.locator('#metres').textContent()).replace(/[^\d]/g, ''));
 const ready = async page => {
   await page.goto('/');
-  await page.waitForFunction(() => window.__ATSEA__ && window.__ATSEA__.snapshot().ready, undefined, { timeout: 60_000 });
+  await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '3d', undefined, { timeout: 60_000 });
   await expect(page.locator('#c')).toBeVisible();
 };
 const slider = async (page, id, value) => page.locator(`#${id}`).evaluate((input, val) => {
@@ -169,7 +169,7 @@ test('manual fishing updates the catch notice, guide, and persistent record once
   await page.locator('#btn-guide').click();
   await expect(page.locator(`#guide-grid .sp[data-id="${id}"]`)).not.toHaveClass(/sp--unknown/);
   await page.reload();
-  await page.waitForFunction(() => window.__ATSEA__?.snapshot().ready);
+  await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '3d');
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem('atsea.guide'))[key], id)).toBe(1);
 });
 
@@ -191,7 +191,7 @@ test('legacy language, collapsed controls, slider, and collection records surviv
   await page.locator('#btn-panel').click();
   await expect(page.locator('#btn-panel')).toHaveAttribute('aria-expanded', 'false');
   await page.reload();
-  await page.waitForFunction(() => window.__ATSEA__?.snapshot().ready);
+  await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '3d');
   await expect(page.locator('#btn-panel')).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('#btn-guide')).toHaveAttribute('aria-label', '도감');
   await page.locator('#btn-guide').click();
@@ -286,18 +286,28 @@ test('surface, middle, and seabed render with measured browser frame timing', as
 });
 
 
-test('model download failure offers a working retry @failure-case', async ({ page }) => {
+test('model download failure offers a working view-button retry @failure-case', async ({ page }) => {
   await page.route('**/*.glb', route => route.abort('failed'));
   await page.goto('/');
   await expect(page.locator('#sea-loading')).toBeVisible();
   await expect(page.locator('#sea-retry')).toBeVisible();
-  await expect(page.locator('#sea-loading-label')).toContainText(/could not load|다시 시도/);
-  expect((await state(page)).failed).toBe(true);
+  await expect(page.locator('#sea-loading-label')).toContainText(/continues in 2D|2D로 이어/);
+  expect((await state(page)).failed).toBe(false);
+  expect((await state(page)).renderMode).toBe('2d');
+  await page.evaluate(() => {
+    window.__ATSEA__.setPaused(true); window.__ATSEA__.castRod();
+    window.__failureOcean = window.__ATSEA__.getOcean();
+    window.__failureRod = window.__failureOcean.rod;
+    window.__ATSEA__.recordCatch();
+  });
   await page.unroute('**/*.glb');
-  await page.locator('#sea-retry').click();
-  await page.waitForFunction(() => window.__ATSEA__?.snapshot().ready, undefined, { timeout: 60_000 });
+  await expect(page.locator('#btn-view')).toHaveText('3D');
+  await page.locator('#btn-view').click();
+  await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '3d', undefined, { timeout: 60_000 });
   await expect(page.locator('#sea-loading')).toBeHidden();
   expect((await state(page)).failed).toBe(false);
+  expect(await page.evaluate(() => window.__failureOcean === window.__ATSEA__.getOcean() && window.__failureRod === window.__ATSEA__.getOcean().rod)).toBe(true);
+  expect((await state(page)).guideLog.fish0).toBe(1);
   await page.locator('#btn-bottom').click();
   await expect.poll(() => depth(page)).toBe(1500);
 });
@@ -305,7 +315,12 @@ test('model download failure offers a working retry @failure-case', async ({ pag
 test('WebGL context restoration recovers the scene without losing saved records @failure-case', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'Context loss recovery uses the desktop WebGL test environment.');
   await ready(page);
-  await page.evaluate(() => window.__ATSEA__.recordCatch({ kind: 'fish', shapeIndex: 0, rare: false }));
+  await page.evaluate(() => {
+    window.__ATSEA__.setPaused(true); window.__ATSEA__.castRod(); window.__ATSEA__.toggleSub();
+    window.__contextOcean = window.__ATSEA__.getOcean();
+    window.__contextRod = window.__contextOcean.rod;
+    window.__ATSEA__.recordCatch({ kind: 'fish', shapeIndex: 0, rare: false });
+  });
   const supported = await page.evaluate(() => {
     const gl = document.querySelector('#c').getContext('webgl2');
     const loss = gl.getExtension('WEBGL_lose_context');
@@ -316,10 +331,13 @@ test('WebGL context restoration recovers the scene without losing saved records 
   });
   expect(supported).toBe(true);
   await expect(page.locator('#sea-retry')).toBeVisible();
+  expect((await state(page)).renderMode).toBe('2d');
+  expect(await page.evaluate(() => window.__contextOcean === window.__ATSEA__.getOcean())).toBe(true);
   await page.evaluate(() => window.__contextLossTest.restoreContext());
-  await page.waitForFunction(() => window.__ATSEA__?.snapshot().ready, undefined, { timeout: 60_000 });
+  await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '3d', undefined, { timeout: 60_000 });
   await expect(page.locator('#sea-loading')).toBeHidden();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('atsea.guide')).fish0)).toBe(1);
+  expect(await page.evaluate(() => window.__contextOcean === window.__ATSEA__.getOcean() && window.__contextRod === window.__ATSEA__.getOcean().rod)).toBe(true);
   await page.locator('#btn-guide').click();
   await expect(page.locator('[data-id="fish0"]')).not.toHaveClass(/sp--unknown/);
 });

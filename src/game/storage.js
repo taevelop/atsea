@@ -11,3 +11,13 @@ export function loadSliderValues(keys, storage) {
     return result;
   } catch { return {}; }
 }
+
+export function loadViewMode(storage) {
+  try { storage ??= globalThis.localStorage; return storage.getItem('atsea.view') === '2d' ? '2d' : '3d'; }
+  catch { return '3d'; }
+}
+export function saveViewMode(mode, storage) {
+  if (mode !== '2d' && mode !== '3d') return;
+  try { storage ??= globalThis.localStorage; storage.setItem('atsea.view', mode); }
+  catch { /* Keep the in-memory view when storage is unavailable. */ }
+}

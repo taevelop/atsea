@@ -1,6 +1,11 @@
 const LANG_KEY = "atsea.lang";
 const LANGS = {
   en: {
+    "view.2d": "2D ASCII tropical sea", "view.3d": "3D tropical sea",
+    "view.switch2d": "Switch to 2D", "view.switch3d": "Switch to 3D",
+    "view.cancel": "Cancel 3D switch and stay in 2D",
+    "view.loading": "Preparing 3D · playing in 2D", "view.error": "3D is unavailable",
+    "view.fallback": "Your sea continues in 2D. You can retry 3D at any time.", "view.retry": "Retry 3D",
     "ui.controls": "Controls &#9662;", "ui.controlsOff": "Controls &#9652;",
     "ui.surface": "Surface", "ui.seabed": "Seabed",
     "ui.pause": "Pause", "ui.play": "Play", "ui.refresh": "Refresh",
@@ -78,9 +83,14 @@ const LANGS = {
     "pace.brisk": "brisk", "pace.quick": "quick",
   },
   ko: {
+    "view.2d": "2D ASCII 열대 바다", "view.3d": "3D 열대 바다",
+    "view.switch2d": "2D로 전환", "view.switch3d": "3D로 전환",
+    "view.cancel": "3D 전환 취소 · 2D 유지",
+    "view.loading": "3D 준비 중 · 2D에서 플레이할 수 있어요", "view.error": "3D를 표시할 수 없습니다",
+    "view.fallback": "같은 바다를 2D로 이어갑니다. 언제든 3D를 다시 시도할 수 있어요.", "view.retry": "3D 다시 시도",
     "ui.controls": "조작 &#9662;", "ui.controlsOff": "조작 &#9652;",
     "ui.surface": "수면", "ui.seabed": "해저",
-    "ui.pause": "멈춤", "ui.play": "재생", "ui.refresh": "다시 채우기",
+    "ui.pause": "멈춤", "ui.play": "재생", "ui.refresh": "리프레시",
     "ui.water": "물빛", "ui.wallpaper": "배경화면",
     "ui.fish": "물고기", "ui.sharks": "상어", "ui.coral": "산호",
     "ui.starfish": "불가사리", "ui.seaweed": "해초", "ui.speed": "속도",
