@@ -5,14 +5,14 @@ import { DATA, Ocean, SPECIES, MEGA_COLOR } from '../../src/game/ocean.js';
 import { loadViewMode, saveViewMode } from '../../src/game/storage.js';
 
 describe('original ASCII art on the shared simulation', () => {
-  it('matches the existing collision dimensions for every one of the 44 variants', () => {
+  it('matches the existing collision dimensions for every base and added variant', () => {
     let variants = 0;
     for (const [family, shapes] of Object.entries(ASCII_DATA.shapes)) {
       expect(shapes.map(lines => ({ w: Math.max(...lines.map(line => line.length)), h: lines.length }))).toEqual(DATA.sizes[family]);
       variants += shapes.length;
       for (const lines of shapes) expect(flip(flip(lines))).toEqual(lines);
     }
-    expect(variants).toBe(44);
+    expect(variants).toBe(50);
   });
   it('clips edge sprites and preserves transparent margins with opaque interiors', () => {
     const grid = new Grid(7, 2);

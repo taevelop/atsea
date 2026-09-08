@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ModelLibrary } from './model-library.js';
+import { DATA } from '../game/data.js';
 
 const clamp = THREE.MathUtils.clamp;
 const TEMP = new THREE.Object3D();
@@ -299,11 +300,13 @@ export class SeaRenderer {
         const id = kind === 'fish' ? being.guideId : kind;
         const centerX = being.x + being.w / 2;
         const centerY = -((Number.isFinite(being.yf) && kind !== 'sub' ? being.yf : being.y) + being.h / 2) * a;
-        const instance = this.acquire(being, id, being.w, being.h * a, centerX, centerY);
+        // Shrimp keeps its ASCII footprint, but its 3D length matches the second-smallest fish.
+        const sizeScale = kind === 'shrimp' ? DATA.sizes.FISH[1].w / being.w : 1;
+        const instance = this.acquire(being, id, being.w * sizeScale, being.h * a * sizeScale, centerX, centerY);
         instance.group.position.z = -2 - (Math.sin(instance.phase * 5.3) + 1) * 3;
         const yaw = being.dir < 0 ? Math.PI : 0;
-        instance.pivot.rotation.y = yaw + Math.sin(clock * .65 + instance.phase) * .11;
-        instance.pivot.rotation.x = kind === 'ray' ? .42 + Math.sin(clock * .45 + instance.phase) * .08 : 0;
+        instance.pivot.rotation.y = (kind === 'crab' ? 0 : yaw) + Math.sin(clock * .65 + instance.phase) * .11;
+        instance.pivot.rotation.x = kind === 'ray' ? .42 + Math.sin(clock * .45 + instance.phase) * .08 : kind === 'turtle' ? .35 : 0;
         instance.pivot.rotation.z = (kind === 'seahorse' || kind === 'jelly') ? Math.sin(clock + instance.phase) * .035 : Math.sin(clock * .8 + instance.phase) * .025;
         instance.mixer?.setTime(clock * (being.rush ? 2.4 : .8) + instance.phase);
         this.library.updateGlow(instance, clock, 1.5);

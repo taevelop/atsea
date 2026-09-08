@@ -2,7 +2,7 @@ import './styles.css';
 import { AsciiRenderer, speciesArt } from './render/ascii-renderer.js';
 import { ViewManager } from './render/view-manager.js';
 import { waterColor } from './render/water.js';
-import { Ocean, DATA, SPECIES, CATCHABLE, guideId, SPEED_DEFAULT, LURE, ROD, RARE_COLOR } from './game/ocean.js';
+import { Ocean, DATA, SPECIES, CATCHABLE, SIGHT_ONLY, guideId, SPEED_DEFAULT, LURE, ROD, RARE_COLOR } from './game/ocean.js';
 import { GUIDE, TITLES, TROPHIES, TROPHY_GOT, TROPHY_ALL, LURE_IDS, trophyKey, trophyState, tallyRecords, earnedTitles } from './game/progression.js';
 import { loadCounts, loadSliderValues, loadViewMode, saveViewMode } from './game/storage.js';
 import { LIMITS, normalizeSetting } from './game/limits.js';
@@ -188,7 +188,10 @@ function frame(now, reschedule = true) {
                         b.x + b.w > 0 && b.x < cols;
   if (!seenLog.megalodon && ocean.groups.megalodon.length &&
       onScreen(ocean.groups.megalodon[0])) sighted("megalodon");
-  for (const b of ocean.groups.shark)
+  for (const kind of SIGHT_ONLY) {
+    if (!seenLog[kind] && ocean.groups[kind].some(onScreen)) sighted(kind);
+  }
+  for (const kind of ['shark', ...SIGHT_ONLY]) for (const b of ocean.groups[kind])
     if (b.rare && !b.logged && onScreen(b)) { b.logged = true; spottedRare(b); }
 
   renderer.render({ocean,cam,cols,rows,depth,clock,motion,waterOn,redTide,paused,dt:paused ? 0 : Math.min(200,dt)/1000});
@@ -489,7 +492,7 @@ function speciesArtwork(entry, rare, locked) {
   const width = Math.max(...art.map(line => line.length));
   const size = Math.max(4.5, Math.min(11, 88 / (art.length * 1.15), 250 / (width * .6)));
   const lines = locked ? art.map(line => line.replace(/[^ ]/g, '█')) : art;
-  const shade = locked ? 'var(--ink-faint)' : rare && CATCHABLE.includes(kind) ? RARE_COLOR : color;
+  const shade = locked ? 'var(--ink-faint)' : rare ? RARE_COLOR : color;
   return '<pre class="sp-art sp-art--ascii" role="img" aria-label="' + name + '" style="color:' +
     shade + ';font-size:' + size.toFixed(1) + 'px">' + esc(lines.join('\n')) + '</pre>';
 }
@@ -934,7 +937,7 @@ function sighted(kind) {
   seenLog[kind] = 1;
   saveGuide();
   const entry = GUIDE.find(e => e[0] === kind);
-  if (entry) showNotice(entry, "mega", T("n.mega"), "all", RARE_HOLD);
+  if (entry) showNotice(entry, kind === 'megalodon' ? 'mega' : 'sight', T(kind === 'megalodon' ? 'n.mega' : 'n.sighted'), "all", RARE_HOLD);
   if (!guideWrap.hidden) paintGuide();
   clearTimeout(titleTimer);
   titleTimer = setTimeout(checkTitles, 3200);
@@ -1001,7 +1004,7 @@ const loadingProgress = document.getElementById('sea-loading-progress');
 const retryButton = document.getElementById('sea-retry');
 const viewButton = document.getElementById('btn-view');
 let preferredMode = loadViewMode();
-let modelProgress = { loaded: 0, total: 21 };
+let modelProgress = { loaded: 0, total: 27 };
 
 function paintViewUI() {
   if (!renderer) return;

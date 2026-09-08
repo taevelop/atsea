@@ -1,7 +1,9 @@
 ﻿import bpy,pathlib,math
 from mathutils import Vector
+import sys
 root=pathlib.Path.cwd();out=root/'.tools/asset-preview';out.mkdir(exist_ok=True)
-for key in ['fish0','fish1','fish2','fish3','fish4','fish5','fish6','ray','shark','angler','jelly','seahorse','squid','octopus','sub','coral','starfish','seaweed','rock']:
+keys=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else ['fish0','fish1','fish2','fish3','fish4','fish5','fish6','ray','shark','angler','jelly','seahorse','squid','octopus','sub','coral','starfish','seaweed','rock','turtle','crab','shrimp','dolphin','whale','oarfish']
+for key in keys:
  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(root/'public/models'/(key+'.glb')))
  for o in list(bpy.context.scene.objects):
   if o.type=='MESH' and not o.data.materials:bpy.data.objects.remove(o,do_unlink=True)

@@ -6,7 +6,7 @@ import { inspectWaterPixels } from '../e2e/image-checks.js';
 
 const ready = async (page, mode = '3d') => {
   await expect(page.locator('#sea-loading')).toBeHidden({ timeout: 60_000 });
-  if (mode === '3d') await expect(page.locator('#sea-loading-progress')).toHaveJSProperty('value', 21);
+  if (mode === '3d') await expect(page.locator('#sea-loading-progress')).toHaveJSProperty('value', 27);
   await expect(page.locator(mode === '3d' ? '#c' : '#c-ascii')).toBeVisible();
   await expect(page.locator('body')).toHaveAttribute('data-view', mode);
   const title = mode === '2d' ? 'ASCII Tropical Sea' : 'Animated Tropical Sea';
@@ -76,7 +76,7 @@ test('copied HTML loads offline, renders all models, and supports depth, tools, 
   await expect(page.locator('#btn-rod')).toHaveAttribute('aria-pressed', 'true');
   expect(await metres(page)).toBe(1500);
   await page.locator('#btn-guide').click();
-  await expect(page.locator('#guide-grid pre')).toHaveCount(15);
+  await expect(page.locator('#guide-grid pre')).toHaveCount(21);
   await expect(page.locator('#guide-grid img')).toHaveCount(0);
   await page.locator('#btn-guide-close').click();
   await page.locator('#btn-view').click();
@@ -150,5 +150,5 @@ test('offline ASCII can start and show the guide without WebGL', async ({ page }
   await page.locator('#btn-bottom').click();
   await expect.poll(() => metres(page)).toBe(1500);
   await page.locator('#btn-guide').click();
-  await expect(page.locator('#guide-grid pre')).toHaveCount(15);
+  await expect(page.locator('#guide-grid pre')).toHaveCount(21);
 });

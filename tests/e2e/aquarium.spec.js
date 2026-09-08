@@ -238,6 +238,9 @@ test('two-finger dive moves depth and releases cleanly after touch ends', async 
   test.skip(info.project.name !== 'mobile', 'Real two-contact input is verified on the touch project.');
   await ready(page);
   await page.evaluate(() => window.__ATSEA__.setPaused(true));
+  // New visitors can show a sighting card over the intended touch coordinates.
+  const dismiss = page.locator('[data-close-catch]');
+  if (await dismiss.isVisible()) await dismiss.click();
   const box = await page.locator('#c').boundingBox();
   const cdp = await context.newCDPSession(page);
   const y = box.y + box.height * 0.7;

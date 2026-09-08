@@ -1,7 +1,10 @@
-// Original At Sea v4.5.0 artwork, including all appended coral and megalodon variants.
+import { NEW_ASCII_FRAMES } from './new-species-art.js';
+// Original At Sea v4.5.0 artwork plus the approved new swimming species.
 // Extracted once; builds do not require the local atsea2d reference.
 export const ASCII_DATA = {
+  swim: NEW_ASCII_FRAMES,
   "shapes": {
+    ...Object.fromEntries(Object.entries(NEW_ASCII_FRAMES).map(([family, frames]) => [family, [frames[0]]])),
     "FISH": [
       [
         "><>"

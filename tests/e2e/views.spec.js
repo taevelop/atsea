@@ -117,7 +117,7 @@ test('ASCII and model cards share rare records, titles and trophies and remember
   await page.locator('#guide-grid [data-id="fish0"]').focus();
   await page.evaluate(() => window.__ATSEA__.setRenderMode('2d'));
   await expect(page.locator('#guide-grid [data-id="fish0"]')).toBeFocused();
-  await expect(page.locator('#guide-grid pre')).toHaveCount(15);
+  await expect(page.locator('#guide-grid pre')).toHaveCount(21);
   await expect(page.locator('#guide-grid [data-id="fish0"] pre')).toHaveText('><>');
   await expect(page.locator('#guide-grid [data-id="fish1"] pre')).toContainText('█');
   for (const key of ['guideLog', 'rareLog', 'titleLog']) expect((await snapshot(page))[key]).toEqual(before[key]);
@@ -156,7 +156,7 @@ test('2D remains playable during a 3D download and a late load cannot override t
     expect(await page.evaluate(() => window.__loadingOcean === window.__ATSEA__.getOcean())).toBe(true);
     expect((await snapshot(page)).rod).not.toBeNull();
     await view(page, '3d');
-    expect(requests).toBe(21);
+    expect(requests).toBe(27);
   } finally { release(); }
 });
 
@@ -185,7 +185,7 @@ test('saved 2D starts without models and renders the surface and seabed as ASCII
     expect(appearance.brightnessRange).toBeGreaterThan(30);
   }
   await page.locator('#btn-guide').click();
-  await expect(page.locator('#guide-grid pre')).toHaveCount(15);
+  await expect(page.locator('#guide-grid pre')).toHaveCount(21);
   await expect(page.locator('#guide-grid img')).toHaveCount(0);
   expect(models).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
@@ -227,6 +227,8 @@ test('special bait and megalodon sighting stay shared when changing view', async
 test('ASCII input supports depth gestures and the view buttons work in wallpaper mode', async ({ page, context }, info) => {
   await open(page, '2d');
   await page.evaluate(() => window.__ATSEA__.setPaused(true));
+  const dismiss = page.locator('[data-close-catch]');
+  if (await dismiss.isVisible()) await dismiss.click();
   const box = await page.locator('#c-ascii').boundingBox();
   if (info.project.name === 'mobile') {
     const cdp = await context.newCDPSession(page);
@@ -276,5 +278,5 @@ test('WebGL unavailable at startup still leaves a usable ASCII sea @failure-case
   await expect(page.locator('#btn-view')).toHaveText('3D');
   await expect(page.locator('#btn-view')).toHaveAttribute('aria-label', 'Switch to 3D');
   await page.locator('#btn-guide').click();
-  await expect(page.locator('#guide-grid pre')).toHaveCount(15);
+  await expect(page.locator('#guide-grid pre')).toHaveCount(21);
 });

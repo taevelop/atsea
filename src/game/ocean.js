@@ -6,8 +6,9 @@ const SPEED_DEFAULT = 20, GRACE = 21, HOLD_TIME = 84, HOOK_RATE = .70;
 const CHOMP_HOLD = 6, CHEW_TIME = 56, ALARM_TIME = CHEW_TIME;
 const RARE_CHANCE = .006, RARE_COLOR = '#f2fbff', FLEE_FLOOR = .40;
 const MEGA_CHANCE = .003, BAIT_LIFE = 90, MEGA_COLOR = '#a8e6ff';
-const CATCHABLE = ['angler','ray','octopus','squid','jelly','seahorse','lantern','fish'];
-const RARE_KINDS = new Set([...CATCHABLE,'shark']);
+const CATCHABLE = ['angler','ray','octopus','squid','jelly','seahorse','lantern','fish','crab','shrimp','oarfish'];
+const SIGHT_ONLY = ['turtle', 'dolphin', 'whale'];
+const RARE_KINDS = new Set([...CATCHABLE,'shark',...SIGHT_ONLY]);
 const rnd = (a,b) => a + Math.random() * (b-a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const guideId = (kind,shapeIndex) => kind === 'fish' ? 'fish'+shapeIndex : kind;
@@ -15,6 +16,12 @@ class Chomp { constructor(x,y) { this.x=x-2; this.y=y-1; this.age=0; } step(u) {
 class Alarm { constructor(fish,life=ALARM_TIME,mood) { this.fish=fish; this.age=0; this.life=life; this.mood=mood; } step(u) { this.age+=u; return this.age<this.life; } }
 
 const SPECIES = {
+  turtle:   {sizes:"TURTLE", colors:"TURTLE", band:[.04,.38], speed:[.07,.14], mirror:1, bubble:0, opaque:1, drift:[.010,.025], turn:.001},
+  crab:     {sizes:"CRAB", colors:"CRAB", band:[.72,.98], speed:[.05,.12], mirror:0, bubble:0, opaque:1, drift:[.015,.035], turn:.002},
+  shrimp:   {sizes:"SHRIMP", colors:"SHRIMP", band:[.45,.95], speed:[.14,.28], mirror:1, bubble:0, opaque:1, drift:[.018,.045], turn:.004},
+  dolphin:  {sizes:"DOLPHIN", colors:"DOLPHIN", band:[.02,.32], speed:[.20,.34], mirror:1, bubble:.002, opaque:1, drift:[.012,.030], turn:.001},
+  whale:    {sizes:"WHALE", colors:"WHALE", band:[.08,.55], speed:[.07,.13], mirror:1, bubble:.002, opaque:1, drift:[.007,.018], turn:.0005},
+  oarfish:  {sizes:"OARFISH", colors:"OARFISH", band:[.62,.94], speed:[.025,.065], mirror:1, bubble:0, opaque:1, drift:[.008,.022], turn:.0005},
   fish:     {sizes:"FISH",     colors:"FISH",     band:[0,.92],   speed:[.30,.85], mirror:1, bubble:.012, small:1, drift:[.010,.045], turn:.006},
   lantern:  {sizes:"LANTERN",  colors:"LANTERN",  band:[.40,1],   speed:[.35,.75], mirror:1, bubble:0,    small:1, drift:[.010,.045], turn:.006},
   shark:    {sizes:"SHARK",    colors:"SHARK",    band:[0,1],     speed:[.16,.32], mirror:1, bubble:.004, opaque:1, drift:[.008,.025], turn:.002},
@@ -321,6 +328,12 @@ class Ocean {
       lantern:  stock("lantern", w / 5.5),
       octopus:  stock("octopus", 8.0),
       ray:      stock("ray", 1.6),
+      turtle:   stock("turtle", .7),
+      crab:     stock("crab", 1.8),
+      shrimp:   stock("shrimp", 1.5),
+      dolphin:  stock("dolphin", .6),
+      whale:    stock("whale", .35),
+      oarfish:  stock("oarfish", .6),
       megalodon: 0,          // 처음에는 없다. 상어가 태어날 때 아주 드물게 온다
     };
     this.groups = {};
@@ -465,7 +478,7 @@ class Ocean {
     const limit = shark.w / 2;
     const pool = [];
     for (const kind of Object.keys(this.groups)) {
-      if (kind === "shark" || kind === "megalodon") continue;
+      if (kind === "shark" || kind === "megalodon" || SIGHT_ONLY.includes(kind)) continue;
       for (const prey of this.groups[kind]) if (prey.w <= limit) pool.push([kind, prey]);
     }
     return pool;
@@ -618,4 +631,4 @@ class Ocean {
 
 }
 
-export { Ocean, Being, Rod, FishingLine, Chomp, Alarm, DATA, SPECIES, CATCHABLE, guideId, SPEED_DEFAULT, LURE, CHOMP, ROD, RARE_COLOR, MEGA_COLOR };
+export { Ocean, Being, Rod, FishingLine, Chomp, Alarm, DATA, SPECIES, CATCHABLE, SIGHT_ONLY, guideId, SPEED_DEFAULT, LURE, CHOMP, ROD, RARE_COLOR, MEGA_COLOR };

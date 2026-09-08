@@ -22,6 +22,12 @@ export function beingArt(being, motion = 0) {
     const phase = (being.animationPhase || 0) / (Math.PI * 2) * frames.length;
     lines = frames[Math.floor((phase + motion * .1) % frames.length)];
   }
+  const frames = ART.swim[SPECIES[being.kind]?.sizes];
+  if (frames) {
+    const rate = being.kind === 'shrimp' ? .4 : being.kind === 'crab' ? .28 : being.kind === 'whale' ? .08 : .16;
+    const phase = (being.animationPhase || 0) / (Math.PI * 2) * frames.length;
+    lines = frames[Math.floor((phase + motion * rate) % frames.length)];
+  }
   return being.dir === -1 && being.spec.mirror ? flip(lines) : lines;
 }
 
@@ -122,7 +128,7 @@ export function composeAsciiGrid(state, grid = new Grid(state.cols, state.rows))
   for (const item of ocean.floor) if (!item.creep) floor(item);
   grid.draw(0, ocean.floorY - cam, sandFor(ocean), ART.single.sand);
   for (const item of ocean.floor) if (item.creep) floor(item);
-  for (const kind of ['fish', 'jelly', 'seahorse', 'lantern', 'squid', 'ray', 'angler', 'octopus', 'shark', 'megalodon']) {
+  for (const kind of ['fish', 'jelly', 'seahorse', 'lantern', 'squid', 'ray', 'angler', 'octopus', 'crab', 'shrimp', 'turtle', 'oarfish', 'dolphin', 'shark', 'whale', 'megalodon']) {
     for (const being of ocean.groups[kind]) {
       const lines = beingArt(being, motion);
       grid.sprite(being.x, being.y - cam, lines, being.color, being.spec.opaque);
