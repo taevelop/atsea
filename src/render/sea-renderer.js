@@ -270,6 +270,7 @@ export class SeaRenderer {
       this.instances.set(entity, instance);
       this.world.add(instance.group);
     }
+    this.library.setColor(instance, entity.color);
     const scale = Math.min(width / Math.max(.001, instance.size.x), height / Math.max(.001, instance.size.y));
     instance.pivot.scale.setScalar(scale);
     instance.group.position.set(x, y, z);
@@ -305,6 +306,7 @@ export class SeaRenderer {
         instance.pivot.rotation.x = kind === 'ray' ? .42 + Math.sin(clock * .45 + instance.phase) * .08 : 0;
         instance.pivot.rotation.z = (kind === 'seahorse' || kind === 'jelly') ? Math.sin(clock + instance.phase) * .035 : Math.sin(clock * .8 + instance.phase) * .025;
         instance.mixer?.setTime(clock * (being.rush ? 2.4 : .8) + instance.phase);
+        this.library.updateGlow(instance, clock, 1.5);
       }
     }
     if (cam + rows + 12 >= ocean.floorY - 12) {
