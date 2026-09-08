@@ -6,16 +6,16 @@
      켜야 env(safe-area-inset-*) 도 실제 값을 돌려주므로, 글자와 버튼은 아래
      스타일에서 그 값만큼 안쪽으로 물린다. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A 3D Tropical Sea that runs in your browser. Dive five screens deep past fish, sharks, jellyfish and anglerfish - cast a line, launch a submarine, or run it bare as a wallpaper.">
+<meta name="description" content="An Animated Tropical Sea that runs in your browser. Dive five screens deep past fish, sharks, jellyfish and anglerfish - cast a line, launch a submarine, or run it bare as a wallpaper.">
 <meta name="theme-color" content="#01050b">
 <!-- 판 번호. 고칠 때는 조작줄 물음표 쪽지의 v4.5.0, site.webmanifest 의 version 도 함께 고친다. -->
 <meta name="version" content="1.0.0">
 
 <!-- 카카오톡/슬랙 등에 링크를 붙였을 때 보이는 카드 -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="At Sea 3D">
-<meta property="og:title" content="At Sea 3D">
-<meta property="og:description" content="A 3D Tropical Sea that runs in your browser. Dive five screens deep past fish, sharks, jellyfish and anglerfish over a living 3D seafloor.">
+<meta property="og:site_name" content="At Sea">
+<meta property="og:title" content="At Sea — Animated Tropical Sea">
+<meta property="og:description" content="An Animated Tropical Sea that runs in your browser. Dive five screens deep past fish, sharks, jellyfish and anglerfish over a living 3D seafloor.">
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:url" content="https://atsea.party/">
 <!-- 카드 썸네일: 1200x630 png 를 site/ 에 넣은 뒤 아래 주석을 푸세요. 없으면 제목·설명만 보입니다.
@@ -30,22 +30,22 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="apple-mobile-web-app-title" content="At Sea 3D">
+<meta name="apple-mobile-web-app-title" content="At Sea">
 <!-- 안드로이드(크롬) 홈 화면·설치 아이콘 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 
-<title>At Sea 3D — Tropical Sea</title>
+<title>At Sea — Animated Tropical Sea</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans+Condensed:wght@400;600&amp;display=swap">
 
 <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
-<div id="sea-loading" class="sea-loading" role="status" aria-live="polite"><span class="sea-loading__mark">At Sea 3D</span><h1>Preparing the ocean</h1><p id="sea-loading-label">Loading the sea and its creatures…</p><progress id="sea-loading-progress" value="0" max="1" aria-label="Model loading progress"></progress><button id="sea-retry" type="button" hidden>Try again</button></div>
+<div id="sea-loading" class="sea-loading" role="status" aria-live="polite"><span class="sea-loading__mark">At Sea</span><h1>Preparing the ocean</h1><p id="sea-loading-label">Loading the sea and its creatures…</p><progress id="sea-loading-progress" value="0" max="1" aria-label="Model loading progress"></progress><button id="sea-retry" type="button" hidden>Try again</button></div>
 
 <header class="bar--top">
-  <span class="mark">3D&nbsp;<b>Tropical Sea</b></span>
+  <span class="mark">Animated&nbsp;<b>Tropical Sea</b></span>
 </header>
 
 <main class="sea" aria-label="Animated 3D tropical sea">
@@ -126,7 +126,7 @@
     <span class="help">
       <button id="btn-help" type="button" aria-expanded="false" aria-controls="help-card" aria-label="Keyboard shortcuts">?</button>
       <div class="help-card" id="help-card" hidden>
-        <p class="help-ver">At Sea 3D <b>v1.0.0</b></p>
+        <p class="help-ver">At Sea <b>v1.0.0</b></p>
         <h3 data-i18n="help.move">Move</h3>
         <dl>
           <dt><kbd>&uarr;</kbd><kbd>&darr;</kbd> <kbd>W</kbd><kbd>S</kbd> <kbd>K</kbd><kbd>J</kbd></dt><dd data-i18n="help.dive2">dive two rows</dd>

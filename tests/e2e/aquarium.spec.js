@@ -39,7 +39,7 @@ test.afterEach(async ({ page }, info) => {
 
 test('3D aquarium preserves desktop/mobile layout and model-based guide cards', async ({ page }) => {
   await ready(page);
-  await expect(page).toHaveTitle(/At Sea.*3D/i);
+  await expect(page).toHaveTitle('At Sea — Animated Tropical Sea');
   for (const id of ['btn-rod', 'btn-sub', 'btn-guide', 'btn-pause', 'btn-lang', 'gauge']) await expect(page.locator(`#${id}`)).toBeVisible();
   await expect(page.locator('#btn-bait')).toBeHidden();
   const bounds = await page.evaluate(() => {
