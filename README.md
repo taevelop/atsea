@@ -25,6 +25,30 @@ npm run preview
 
 `npm run build`의 `dist/`가 정적 호스팅 결과물입니다. 원본 Blender 파일, 제작 도구, 테스트 코드는 배포물에 들어가지 않습니다. 이번 작업에서는 운영 사이트를 배포하거나 변경하지 않았습니다.
 
+## Cloudflare 배포
+
+Cloudflare Workers의 Git 연동 빌드에서는 다음 값을 사용합니다. 프로젝트 루트의 `wrangler.jsonc`가 `dist/` 전체를 정적 파일로 배포하도록 지정합니다.
+
+| 설정 | 값 |
+|---|---|
+| Worker 이름 | `atsea3d` |
+| 빌드 명령 | `npm run build` |
+| 배포 명령 | `npx wrangler deploy` |
+| 루트 디렉터리 | 저장소 루트 |
+
+`wrangler.jsonc`를 연결된 Git 브랜치에 함께 올려야 Cloudflare 빌드에도 적용됩니다. 이 설정 파일이 있으면 Wrangler가 Vite 플러그인을 자동으로 설치하거나 `vite.config.js`를 수정하는 설정 단계를 건너뜁니다. 앱에는 별도 Worker 서버 코드나 Cloudflare Vite 플러그인이 필요하지 않습니다.
+
+실제 업로드 없이 배포 설정을 확인하려면 다음 명령을 실행합니다.
+
+```powershell
+npm run build
+npx wrangler deploy --dry-run
+```
+
+Cloudflare Pages를 사용하는 경우에는 Pages 프로젝트의 빌드 명령을 `npm run build`, 빌드 출력 디렉터리를 `dist`로 지정합니다. Pages의 Git 연동 배포에는 별도 `npx wrangler deploy` 명령을 입력하지 않습니다. Direct Upload에서는 로컬 빌드 후 `dist/` 폴더 전체를 올리며, ZIP으로 올릴 때는 최상위에 `index.html`이 위치하도록 압축합니다.
+
+참고: [Workers 정적 파일 설정](https://developers.cloudflare.com/workers/static-assets/binding/), [Wrangler 자동 설정 건너뛰기](https://developers.cloudflare.com/workers/framework-guides/automatic-configuration/#skipping-automatic-configuration), [Pages 빌드 설정](https://developers.cloudflare.com/pages/configuration/build-configuration/).
+
 ## 사용법
 
 | 조작 | 동작 |
