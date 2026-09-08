@@ -120,6 +120,39 @@ npm run test:single
 
 2D에서는 바다·도감·포획 알림 모두 원본 ASCII 도안으로, 3D에서는 기존 모델로 표현합니다. 모드 전환은 바다를 다시 채우거나 도감을 재집계하지 않습니다. 새로고침은 기존처럼 저장된 수집 기록·설정과 표시 모드를 복원하며, 생물 위치나 낚시 세션 전체를 저장하지는 않습니다. `prefers-reduced-motion`이 설정된 환경은 정지 상태로 시작합니다.
 
+## 라이선스 및 외부 자료
+
+앱에서 사용하는 외부 라이브러리·글꼴과 가져온 원본 모델의 라이선스입니다. 각 항목의 라이선스 원문과 제작자 페이지를 함께 표기합니다.
+
+### 앱 실행과 콘텐츠
+
+| 구성 요소 | 제작자 | 용도 | 라이선스 / 출처 |
+|---|---|---|---|
+| Three.js | three.js authors | 3D 렌더링·GLTF 로딩·모델 애니메이션 | [MIT](https://github.com/mrdoob/three.js/blob/r183/LICENSE) |
+| Animated Fish Pack | Quaternius | 물고기·가오리·상어 등의 원본 및 변형 모델 | [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) · [공식 팩](https://quaternius.com/packs/animatedfish.html) |
+| Animated Cute Fish Pack | Quaternius | 탱·복어·아귀 등의 원본 및 변형 모델 | [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) · [공식 팩](https://quaternius.com/packs/cutefish.html) |
+| IBM Plex Mono / IBM Plex Sans Condensed | IBM | 웹 UI와 ASCII 글꼴 | [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt) |
+
+원본 모델 고지문은 [Animated Fish의 License.txt](<assets/source/quaternius-animated-fish/Animated Fish Pack by @Quaternius/License.txt>)와 [Cute Fish의 LICENSE.txt](assets/source/quaternius-cute-fish/LICENSE.txt)에 보관합니다. Cute Fish는 제작자의 [Poly Pizza 배포 묶음](https://poly.pizza/bundle/Animated-Fish-Bundle-44zhHN1UbT)에서 받았으며, [개별 모델 출처](assets/source/quaternius-cute-fish/sources.json)와 [변형·제작 내역](docs/assets.md)을 함께 기록했습니다.
+
+IBM Plex는 웹에서 Google Fonts로 불러옵니다. 오프라인 단일 HTML은 글꼴 파일을 내장하지 않고 시스템 글꼴을 사용합니다.
+
+### 개발·테스트·모델 제작 도구
+
+아래 npm 항목은 `package.json`의 직접 개발 의존성입니다. 구체적인 설치 버전은 `package-lock.json`에 기록됩니다.
+
+| 도구 | 용도 | 라이선스 원문 |
+|---|---|---|
+| Vite | 개발 서버와 웹·단일 HTML 빌드 | [MIT](https://github.com/vitejs/vite/blob/main/LICENSE) |
+| Vitest | 단위 테스트 | [MIT](https://github.com/vitest-dev/vitest/blob/main/LICENSE) |
+| ESLint / @eslint/js | 코드 정적 검사 | [MIT](https://github.com/eslint/eslint/blob/main/LICENSE) |
+| globals | 정적 검사 환경의 전역 이름 정의 | [MIT](https://github.com/sindresorhus/globals/blob/main/license) |
+| @playwright/test / Playwright | 데스크톱·모바일·오프라인 브라우저 검사 | [Apache License 2.0](https://github.com/microsoft/playwright/blob/main/LICENSE) |
+| pngjs | 브라우저 캡처의 PNG 픽셀 검사 | [MIT](https://github.com/pngjs/pngjs/blob/main/LICENSE) |
+| Blender | 모델 제작·변형·GLB 내보내기 | [GNU GPL — 배포본은 GPL-3.0-or-later](https://www.blender.org/about/license/) |
+
+Blender는 제작 도구로 사용합니다. 앱 자체 코드와 직접 제작한 보완 모델에는 아직 별도의 프로젝트 라이선스가 선언되어 있지 않으며, 로컬 ASCII 원본 파일에도 라이선스 문구가 없습니다.
+
 ## 자료
 
 - [모델 출처·라이선스·Blender 재생성](docs/assets.md)
