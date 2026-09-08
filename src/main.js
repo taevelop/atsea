@@ -5,6 +5,7 @@ import { waterColor } from './render/water.js';
 import { Ocean, DATA, SPECIES, CATCHABLE, guideId, SPEED_DEFAULT, LURE, ROD, RARE_COLOR } from './game/ocean.js';
 import { GUIDE, TITLES, TROPHIES, TROPHY_GOT, TROPHY_ALL, LURE_IDS, trophyKey, trophyState, tallyRecords, earnedTitles } from './game/progression.js';
 import { loadCounts, loadSliderValues, loadViewMode, saveViewMode } from './game/storage.js';
+import { LIMITS, normalizeSetting } from './game/limits.js';
 import { LANG_KEY, lang, T, spText, tiText, setLanguageState } from './ui/i18n.js';
 
 const water = f => waterColor(f, redTide);
@@ -104,6 +105,7 @@ function restock() {
 const SLIDER_KEY = "atsea.sliders";
 function loadSliders() { return loadSliderValues(Object.keys(ui)); }
 function saveSliders() {
+  syncReadouts();
   try {
     const out = {};
     for (const k of Object.keys(ui)) out[k] = +ui[k].value;
@@ -121,7 +123,7 @@ function showCounts() {
   };
   const saved = loadSliders();
   for (const [k, v] of Object.entries(seed)) {
-    ui[k].max = Math.max(+ui[k].max, v * 2, saved[k] || 0);
+    ui[k].max = Math.min(LIMITS[k][1], Math.max(+ui[k].max, v * 2, saved[k] || 0));
     ui[k].value = k in saved ? saved[k] : v;
   }
   ui.speed.value = "speed" in saved ? saved.speed : (ui.speed.value || SPEED_DEFAULT);
@@ -130,10 +132,14 @@ function showCounts() {
 }
 
 function syncReadouts() {
-  for (const k of Object.keys(ui)) out[k].value = ui[k].value;
+  for (const k of Object.keys(ui)) {
+    ui[k].value = normalizeSetting(k, +ui[k].value);
+    out[k].value = ui[k].value;
+  }
 }
 function applyCounts() {
   if (!ocean) return;
+  syncReadouts();
   ocean.setPopulation(+ui.fish.value);
   ocean.setCount("shark", +ui.sharks.value);
   ocean.floor = ocean.buildFloor(+ui.coral.value, +ui.starfish.value);
@@ -160,7 +166,7 @@ function layoutGauge() {
 function frame(now, reschedule = true) {
   if (!ready || failed || !ocean) return;
   const dt = Math.max(0, Math.min(200, now - last));
-  const u = Math.max(0, Math.min(4, dt / (1000 / (+ui.speed.value || SPEED_DEFAULT))));
+  const u = Math.max(0, Math.min(4, dt / (1000 / normalizeSetting('speed', +ui.speed.value))));
   last = Math.max(last, now);
   if (!paused) { clock += Math.min(200, dt) / 1000; motion += u; }
   const floorMax = Math.max(0, depth - rows);
