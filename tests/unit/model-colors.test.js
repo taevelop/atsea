@@ -67,6 +67,45 @@ describe('3D colors on real model assets', () => {
     }
   });
 
+  it('keeps normal and rare angler bulbs yellow independently of skin tint', () => {
+    const normal = create('angler', false, '#ff00af'), rare = create('angler', true);
+    for (const instance of [normal, rare]) {
+      const bulb = material(instance, 'Light');
+      expect(bulb.color.getHexString()).toBe('fff700');
+      expect(bulb.emissive.getHexString()).toBe('fff700');
+      expect(bulb.emissiveIntensity).toBeGreaterThan(1);
+      expect(instance.lure.glow.material.color).toEqual(bulb.color);
+    }
+    expect(rare.glow.material.color).not.toEqual(rare.lure.glow.material.color);
+    expect(normal.lure.glow.material).toBe(rare.lure.glow.material);
+    expect(normal.lure.glow.material.map).toBe(rare.glow.material.map);
+  });
+
+  it('keeps the yellow halo on the animated bulb after scaling and turning, and freezes when paused', () => {
+    const instance = create('angler');
+    instance.pivot.scale.setScalar(3);
+    instance.group.position.set(40, -200, -5);
+    const positions = [];
+    for (const yaw of [0, Math.PI]) {
+      instance.pivot.rotation.y = yaw;
+      instance.mixer.setTime(.7);
+      library.updateGlow(instance, 1, 1.5);
+      const { mesh, glow, position } = instance.lure;
+      const bulb = new THREE.Box3().setFromObject(mesh, true);
+      expect(position.distanceTo(bulb.getCenter(new THREE.Vector3()))).toBeLessThan(.00001);
+      expect(glow.getWorldPosition(new THREE.Vector3()).distanceTo(position)).toBeLessThan(.00001);
+      positions.push(position.clone());
+    }
+    expect(positions[0].x).toBeGreaterThan(instance.group.position.x);
+    expect(positions[1].x).toBeLessThan(instance.group.position.x);
+    const frozen = instance.lure.glow.scale.clone();
+    library.updateGlow(instance, 1, 1.5);
+    expect(instance.lure.glow.scale).toEqual(frozen);
+    instance.mixer.setTime(1.4);
+    library.updateGlow(instance, 2, 1.5);
+    expect(instance.lure.position.distanceTo(positions[1])).toBeGreaterThan(.001);
+  });
+
   it('preserves rare and megalodon materials regardless of the entity color', () => {
     for (const [id, rare] of [['fish1', true], ['megalodon', false]]) {
       const instance = create(id, rare), skin = material(instance, 'Top');

@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import { decodeEmbeddedModel } from './embedded-models.js';
+import { LURE } from '../game/ocean.js';
+
+const LURE_BOX = new THREE.Box3();
+const LURE_VERTEX = new THREE.Vector3();
+const LURE_SIZE = new THREE.Vector3();
 
 export const MODEL_IDS = [
   'fish0', 'fish1', 'fish2', 'fish3', 'fish4', 'fish5', 'fish6',
@@ -44,7 +49,8 @@ export class ModelLibrary {
     this.models = new Map();
     this.materials = new Set();
     this.thumbnails = new Map();
-    this.glowMaterial = null;
+    this.glowMaterials = new Map();
+    this.glowTexture = null;
   }
 
   async load(onProgress = () => {}) {
@@ -81,6 +87,12 @@ export class ModelLibrary {
             // Some old source materials default to fully metallic without an environment map.
             if ('metalness' in material) material.metalness = Math.min(material.metalness, .18);
             if ('roughness' in material) material.roughness = Math.max(.32, material.roughness);
+            if (id === 'angler' && material.name === 'Light') {
+              material.color.set(LURE);
+              material.emissive.set(LURE);
+              material.emissiveIntensity = 1.4;
+              material.toneMapped = false;
+            }
             this.materials.add(material);
             if (KEEP_RARE_DETAIL.test(material.name)) {
               rareMaterials.set(material, material);
@@ -124,18 +136,24 @@ export class ModelLibrary {
     group.add(pivot);
     const glow = rare || id === 'megalodon' ? this.createGlow() : null;
     if (glow) group.add(glow);
+    let lure = null;
+    if (id === 'angler') object.traverse(mesh => {
+      if (!mesh.isMesh || mesh.material.name !== 'Light') return;
+      lure = { mesh, glow: this.createGlow(LURE), position: new THREE.Vector3(), pulse: 1 };
+      group.add(lure.glow);
+    });
     const mixer = source.gltf.animations.length ? new THREE.AnimationMixer(object) : null;
     if (mixer) {
       const clip = source.gltf.animations.find(c => /swim|idle|slow/i.test(c.name)) || source.gltf.animations[0];
       mixer.clipAction(clip).play();
     }
-    const instance = { group, pivot, object, glow, size: source.size, mixer, id, rare, materialBindings, color: null, phase: Math.random() * 10 };
+    const instance = { group, pivot, object, glow, lure, size: source.size, mixer, id, rare, materialBindings, color: null, phase: Math.random() * 10 };
     this.setColor(instance, color);
     return instance;
   }
 
-  createGlow() {
-    if (!this.glowMaterial) {
+  createGlow(color = '#79e6ff') {
+    if (!this.glowTexture) {
       const side = 64, pixels = new Uint8Array(side * side * 4);
       for (let y = 0; y < side; y++) for (let x = 0; x < side; x++) {
         const r2 = ((x + .5) / side * 2 - 1) ** 2 + ((y + .5) / side * 2 - 1) ** 2;
@@ -146,25 +164,48 @@ export class ModelLibrary {
       const map = new THREE.DataTexture(pixels, side, side);
       map.magFilter = map.minFilter = THREE.LinearFilter;
       map.needsUpdate = true;
-      // One shared texture/material and one extra draw per rare animal, including thumbnails.
-      this.glowMaterial = new THREE.SpriteMaterial({
-        map, color: '#79e6ff', opacity: .85, blending: THREE.AdditiveBlending,
+      this.glowTexture = map;
+    }
+    if (!this.glowMaterials.has(color)) {
+      // Rare halos and angler lures share the soft texture, including thumbnails.
+      const material = new THREE.SpriteMaterial({
+        map: this.glowTexture, color, opacity: .85, blending: THREE.AdditiveBlending,
         depthWrite: false, fog: false, toneMapped: false,
       });
-      this.materials.add(this.glowMaterial);
+      this.glowMaterials.set(color, material);
+      this.materials.add(material);
     }
-    return new THREE.Sprite(this.glowMaterial);
+    return new THREE.Sprite(this.glowMaterials.get(color));
   }
 
   updateGlow(instance, clock, minPadding = 0) {
+    if (!instance.glow && !instance.lure) return;
+    // The shared simulation clock freezes both kinds of glow when paused.
+    const pulse = 1 + Math.sin(clock * 2 + instance.phase) * .08;
+    if (instance.lure) {
+      const { mesh, glow, position } = instance.lure;
+      // Follow the actual skinned bulb through swimming, turning, and model scaling.
+      instance.object.updateWorldMatrix(true, true);
+      mesh.skeleton?.update();
+      LURE_BOX.makeEmpty();
+      for (let i = 0; i < mesh.geometry.attributes.position.count; i++) {
+        mesh.getVertexPosition(i, LURE_VERTEX).applyMatrix4(mesh.matrixWorld);
+        LURE_BOX.expandByPoint(LURE_VERTEX);
+      }
+      LURE_BOX.getCenter(position);
+      LURE_BOX.getSize(LURE_SIZE);
+      glow.position.copy(position);
+      instance.group.worldToLocal(glow.position);
+      const diameter = Math.max(LURE_SIZE.x, LURE_SIZE.y, LURE_SIZE.z) * 4;
+      glow.scale.setScalar(Math.max(diameter, minPadding * 2) * pulse);
+      instance.lure.pulse = pulse;
+    }
     if (!instance.glow) return;
     const scale = instance.pivot.scale.x;
     const width = instance.size.x * scale;
     const tilt = instance.pivot.rotation.x;
     const height = (instance.size.y * Math.abs(Math.cos(tilt)) + instance.size.z * Math.abs(Math.sin(tilt))) * scale;
     const padding = Math.max(minPadding, width * .16, height * .3);
-    // The shared simulation clock also freezes this gentle pulse when paused.
-    const pulse = 1 + Math.sin(clock * 2 + instance.phase) * .08;
     instance.glow.scale.set((width + padding * 2) * pulse, (height + padding * 2) * pulse, 1);
     instance.glow.position.z = -instance.size.z * scale * .6 - .01;
   }
@@ -229,6 +270,7 @@ export class ModelLibrary {
         instance.mixer?.setTime(.5);
         this.updateGlow(instance, 0);
         if (mode === 'locked' && instance.glow) instance.glow.visible = false;
+        if (mode === 'locked' && instance.lure) instance.lure.glow.visible = false;
         if (mode === 'locked') instance.object.traverse(mesh => { if (mesh.isMesh) mesh.material = silhouette; });
         scene.add(instance.group);
         renderer.render(scene, camera);
@@ -259,6 +301,7 @@ export class ModelLibrary {
     this.models.clear();
     this.materials.clear();
     this.thumbnails.clear();
-    this.glowMaterial = null;
+    this.glowMaterials.clear();
+    this.glowTexture = null;
   }
 }
