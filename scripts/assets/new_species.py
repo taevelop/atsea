@@ -72,10 +72,16 @@ def build_new_species(reset, mat, uv, tube, fin, eyes, combine, save, only):
             for front in [True, False]:
                 name = ('Front' if front else 'Rear') + str(sign)
                 x = .48 if front else -.53
-                shape = uv(name, (x - .12, sign * .76, -.09), (.22 if front else .16, .53 if front else .31, .065), skin, 16, 8)
-                shape.rotation_euler.z = sign * (.36 if front else -.4)
+                # A continuous tapered flipper starts inside the shell at its pivot.
+                root = (x, sign * .28, .015)
+                points = [root, (x, sign * .46, -.005),
+                          (x - .13, sign * (.82 if front else .64), -.055),
+                          (x - (.34 if front else .25), sign * (1.18 if front else .83), -.09)]
+                shape = tube(name, points, [.13, .17 if front else .14, .14 if front else .115, .012], skin, 12)
+                for vertex in shape.data.vertices:
+                    vertex.co.z = root[2] + (vertex.co.z - root[2]) * .42
                 parts[shape.name] = name
-                joints[name] = ((x, sign * .38, .03), (x, sign * .9, -.04))
+                joints[name] = (root, (x, sign * .9, .015))
                 motion[name] = (0, sign * (.43 if front else .28), 0 if front else math.pi)
         rig(parts, joints, motion, 64)
         save('turtle', 'At Sea original Blender geometry')
@@ -127,9 +133,13 @@ def build_new_species(reset, mat, uv, tube, fin, eyes, combine, save, only):
             if i >= 3:
                 x, _, z = pos
                 tube('Segment rim', [(x - .16, math.sin(t) * .20, z + math.cos(t) * .205) for t in [j * math.pi / 10 - math.pi / 2 for j in range(11)]], .009, trim, 5)
-        uv('Head shield', (.43, 0, .40), (.42, .235, .26), shell, 20, 10)
-        tube('Rostrum', [(.64, 0, .49), (1.07, 0, .57)], [.07, .006], shell, 8)
-        eyes(.70, .47, .21, .055)
+        # Project the carapace and pointed forehead beyond the eye, as in the ASCII profile.
+        uv('Head shield', (.52, 0, .40), (.52, .235, .26), shell, 20, 10)
+        tube('Rostrum', [(.73, 0, .53), (1.03, 0, .56), (1.34, 0, .64)], [.11, .065, .006], shell, 10)
+        uv('Forward cheek', (.92, 0, .30), (.27, .16, .13), shell, 16, 8)
+        for sign in [-1, 1]:
+            tube('Head outline', [(1.17, sign * .055, .29), (1.07, sign * .13, .24), (.90, sign * .165, .24)], .009, trim, 6)
+        eyes(.86, .48, .19, .055)
         for sign in [-1, 1]:
             name = f'Antenna{sign}'
             pts = [(.68, sign * .13, .46), (.99, sign * .20, .67), (1.43, sign * .25, .76), (1.80, sign * .34, .94)]

@@ -22,13 +22,13 @@
     "editable": "assets/source/atsea-adapted/fish1.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 48440,
+    "bytes": 81120,
     "dimensions": [
       8.0158,
       2.5947,
       1.1535
     ],
-    "vertices": 446,
+    "vertices": 858,
     "animation": "Swim"
   },
   {
@@ -86,13 +86,13 @@
     "editable": "assets/source/atsea-adapted/fish5.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 48592,
+    "bytes": 81268,
     "dimensions": [
       11.6229,
       1.774,
       0.8536
     ],
-    "vertices": 446,
+    "vertices": 858,
     "animation": "Swim"
   },
   {
@@ -102,13 +102,13 @@
     "editable": "assets/source/atsea-adapted/fish6.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 54844,
+    "bytes": 87528,
     "dimensions": [
       7.8514,
       4.0885,
-      0.9605
+      1.1371
     ],
-    "vertices": 517,
+    "vertices": 929,
     "animation": "Swim"
   },
   {
@@ -134,13 +134,13 @@
     "editable": "assets/source/atsea-adapted/shark.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 50652,
+    "bytes": 83328,
     "dimensions": [
       15.8492,
       5.1861,
       5.9233
     ],
-    "vertices": 496,
+    "vertices": 908,
     "animation": "Swim"
   },
   {
@@ -150,13 +150,13 @@
     "editable": "assets/source/atsea-adapted/megalodon.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 50832,
+    "bytes": 83512,
     "dimensions": [
       15.8492,
       4.9268,
       6.8118
     ],
-    "vertices": 496,
+    "vertices": 908,
     "animation": "Swim"
   },
   {
@@ -182,13 +182,13 @@
     "editable": "assets/source/atsea-adapted/lantern.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 133888,
+    "bytes": 166572,
     "dimensions": [
       8.9777,
-      1.8534,
-      0.8075
+      2.7737,
+      1.7553
     ],
-    "vertices": 1478,
+    "vertices": 1890,
     "animation": "Swim"
   },
   {
@@ -342,13 +342,13 @@
     "editable": "assets/source/atsea-adapted/dolphin.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 34308,
+    "bytes": 82288,
     "dimensions": [
       9.2333,
       3.0595,
       3.2937
     ],
-    "vertices": 222,
+    "vertices": 806,
     "animation": "Swim"
   },
   {
@@ -358,13 +358,13 @@
     "editable": "assets/source/atsea-adapted/whale.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 54480,
+    "bytes": 87156,
     "dimensions": [
       10.1487,
       3.2485,
       4.0626
     ],
-    "vertices": 396,
+    "vertices": 808,
     "animation": "Swim"
   },
   {
@@ -374,13 +374,13 @@
     "editable": "assets/source/atsea-adapted/turtle.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 174700,
+    "bytes": 149848,
     "dimensions": [
       2.2619,
       0.654,
-      2.5121
+      2.3722
     ],
-    "vertices": 2086,
+    "vertices": 1822,
     "animation": "Swim"
   },
   {
@@ -406,13 +406,13 @@
     "editable": "assets/source/atsea-adapted/shrimp.blend",
     "up": "+Y",
     "forward": "+X",
-    "bytes": 198580,
+    "bytes": 213088,
     "dimensions": [
       2.9559,
       1.4612,
       0.9381
     ],
-    "vertices": 2217,
+    "vertices": 2381,
     "animation": "Swim"
   },
   {

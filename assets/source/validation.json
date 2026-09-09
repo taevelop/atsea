@@ -11,7 +11,7 @@
     {
       "key": "fish1",
       "visibleMeshes": 2,
-      "evaluatedVertices": 572,
+      "evaluatedVertices": 1082,
       "animationMovement": 0.197627,
       "pass": true
     },
@@ -39,14 +39,14 @@
     {
       "key": "fish5",
       "visibleMeshes": 2,
-      "evaluatedVertices": 572,
+      "evaluatedVertices": 1082,
       "animationMovement": 0.165303,
       "pass": true
     },
     {
       "key": "fish6",
       "visibleMeshes": 2,
-      "evaluatedVertices": 767,
+      "evaluatedVertices": 1277,
       "animationMovement": 0.57596,
       "pass": true
     },
@@ -60,14 +60,14 @@
     {
       "key": "shark",
       "visibleMeshes": 2,
-      "evaluatedVertices": 612,
+      "evaluatedVertices": 1122,
       "animationMovement": 1.33512,
       "pass": true
     },
     {
       "key": "megalodon",
       "visibleMeshes": 2,
-      "evaluatedVertices": 612,
+      "evaluatedVertices": 1122,
       "animationMovement": 1.534476,
       "pass": true
     },
@@ -81,8 +81,8 @@
     {
       "key": "lantern",
       "visibleMeshes": 2,
-      "evaluatedVertices": 1952,
-      "animationMovement": 0.155823,
+      "evaluatedVertices": 2462,
+      "animationMovement": 0.148515,
       "pass": true
     },
     {
@@ -117,21 +117,21 @@
       "key": "sub",
       "visibleMeshes": 1,
       "evaluatedVertices": 4733,
-      "animationMovement": 0.0,
+      "animationMovement": 0,
       "pass": true
     },
     {
       "key": "coral",
       "visibleMeshes": 1,
       "evaluatedVertices": 2310,
-      "animationMovement": 0.0,
+      "animationMovement": 0,
       "pass": true
     },
     {
       "key": "starfish",
       "visibleMeshes": 1,
       "evaluatedVertices": 1076,
-      "animationMovement": 0.0,
+      "animationMovement": 0,
       "pass": true
     },
     {
@@ -145,7 +145,49 @@
       "key": "rock",
       "visibleMeshes": 1,
       "evaluatedVertices": 63,
-      "animationMovement": 0.0,
+      "animationMovement": 0,
+      "pass": true
+    },
+    {
+      "key": "dolphin",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 996,
+      "animationMovement": 2.062685,
+      "pass": true
+    },
+    {
+      "key": "whale",
+      "visibleMeshes": 2,
+      "evaluatedVertices": 980,
+      "animationMovement": 0.623044,
+      "pass": true
+    },
+    {
+      "key": "turtle",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 2146,
+      "animationMovement": 0.358015,
+      "pass": true
+    },
+    {
+      "key": "crab",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 1371,
+      "animationMovement": 0.521611,
+      "pass": true
+    },
+    {
+      "key": "shrimp",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 3074,
+      "animationMovement": 0.386442,
+      "pass": true
+    },
+    {
+      "key": "oarfish",
+      "visibleMeshes": 1,
+      "evaluatedVertices": 1986,
+      "animationMovement": 0.063317,
       "pass": true
     }
   ]
