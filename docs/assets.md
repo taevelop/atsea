@@ -1,4 +1,4 @@
-﻿# At Sea 3D 모델과 출처
+# At Sea 3D 모델과 출처
 
 웹은 `public/models/`의 로컬 GLB만 읽습니다. 외부 모델 서버에 런타임으로 의존하지 않습니다. 모든 생물·잠수함·배경 소품은 편집 가능한 Blender 장면을 `assets/source/atsea-adapted/`에 함께 보관합니다.
 
@@ -34,7 +34,7 @@ Cute Fish 공식 페이지가 연결하는 Google Drive는 2026-09-08 다운로�
 | `whale` | 고래 / Animated Fish Whale | 원본 뼈대 수영 유지, 상어보다 약 20% 크게 표시 |
 | `turtle` | 바다거북 / 새 Blender 모델 | 등딱지, 앞뒤 네 지느러미의 독립 운동 |
 | `crab` | 헤엄치는 게 / 새 Blender 모델 | 집게 2개, 다리 8개와 뒤쪽 노 모양 다리 운동 |
-| `shrimp` | 새우 / 새 Blender 모델 | 굽은 분절 몸통, 수염, 수영다리와 꼬리 운동; 3D 길이는 두 번째 작은 물고기와 같은 5칸 |
+| `shrimp` | 새우 / 새 Blender 모델 | 굽은 분절 몸통, 수염, 수영다리와 꼬리 운동; 3D 길이는 두 번째 작은 물고기의 2배인 10칸 |
 | `oarfish` | 심해 산갈치 / 새 Blender 모델 | 세로 자세, 붉은 등지느러미와 파동 운동; 납작한 물고기형 머리와 턱·입선·아가미 |
 | `lantern` | 랜턴피시 / Animated Fish Fish1 | 가늘고 어두운 몸체, 양옆 발광점 |
 | `jelly` | 해파리 / 새 Blender 모델 | 우산형 갓, 구강완과 긴 촉수 |
