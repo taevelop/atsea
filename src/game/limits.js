@@ -1,7 +1,9 @@
 // Allocation and UI limits are shared so stored values cannot raise the budget.
+const LARGE_ANIMAL_LIMITS = Object.freeze([0, 24]);
 export const LIMITS = Object.freeze({
   fish: Object.freeze([0, 1000]),
-  sharks: Object.freeze([0, 24]),
+  sharks: LARGE_ANIMAL_LIMITS,
+  whale: LARGE_ANIMAL_LIMITS,
   coral: Object.freeze([0, 28]),
   starfish: Object.freeze([0, 28]),
   seaweed: Object.freeze([0, 100]),

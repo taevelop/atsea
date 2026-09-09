@@ -495,12 +495,19 @@ class Ocean {
     n = normalizeSetting('fish', n, this.base);
     const ratio = n / Math.max(1, this.base);
     for (const kind of Object.keys(this.groups)) {
-      if (kind === "shark" || kind === "megalodon") continue;
+      if (kind === "shark" || kind === "megalodon" || kind === "whale" || kind === "dolphin") continue;
       const seeded = this.seed[kind] || 0;
       if (!n || !seeded) { this.setCount(kind, 0); continue; }
       if (kind === "fish") { this.setCount("fish", n); continue; }
       this.setCount(kind, Math.max(1, Math.round(seeded * ratio)));
     }
+  }
+  setWhalePopulation(n) {
+    n = normalizeSetting('whale', n, this.seed.whale + this.seed.dolphin);
+    // Split the combined total evenly, keeping the remainder with dolphins.
+    const dolphins = Math.ceil(n / 2);
+    this.setCount('dolphin', dolphins);
+    this.setCount('whale', n - dolphins);
   }
   replace(being) {
     const flock = this.groups[being.kind];

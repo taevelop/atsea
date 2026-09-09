@@ -36,7 +36,7 @@ const subBtn = document.getElementById("btn-sub");
 const baitBtn = document.getElementById("btn-bait");
 const rodBtn = document.getElementById("btn-rod");
 const ui = {}, out = {};
-for (const k of ["fish", "sharks", "coral", "starfish", "seaweed", "speed"]) {
+for (const k of ["fish", "sharks", "whale", "coral", "starfish", "seaweed", "speed"]) {
   ui[k] = document.getElementById(k);
   out[k] = document.getElementById(k + "-v");
 }
@@ -117,6 +117,7 @@ function showCounts() {
   const seed = {
     fish: ocean.groups.fish.length,
     sharks: ocean.groups.shark.length,
+    whale: ocean.groups.whale.length + ocean.groups.dolphin.length,
     coral: ocean.coralCount,
     starfish: ocean.starCount,
     seaweed: ocean.weeds.length,
@@ -124,8 +125,9 @@ function showCounts() {
   const saved = loadSliders();
   for (const [k, v] of Object.entries(seed)) {
     ui[k].max = Math.min(LIMITS[k][1], Math.max(+ui[k].max, v * 2, saved[k] || 0));
-    ui[k].value = k in saved ? saved[k] : v;
   }
+  ui.sharks.max = ui.whale.max = Math.max(+ui.sharks.max, +ui.whale.max);
+  for (const [k, v] of Object.entries(seed)) ui[k].value = k in saved ? saved[k] : v;
   ui.speed.value = "speed" in saved ? saved.speed : (ui.speed.value || SPEED_DEFAULT);
   syncReadouts();
   if (Object.keys(saved).length) applyCounts();
@@ -142,6 +144,7 @@ function applyCounts() {
   syncReadouts();
   ocean.setPopulation(+ui.fish.value);
   ocean.setCount("shark", +ui.sharks.value);
+  ocean.setWhalePopulation(+ui.whale.value);
   ocean.floor = ocean.buildFloor(+ui.coral.value, +ui.starfish.value);
   ocean.setWeeds(+ui.seaweed.value);
   syncReadouts();
@@ -437,6 +440,7 @@ waterBtn.onclick = () => setWater(!waterOn);
 document.getElementById("btn-restock").onclick = restock;
 ui.fish.addEventListener("input", () => { syncReadouts(); ocean.setPopulation(+ui.fish.value); });
 ui.sharks.addEventListener("input", () => { syncReadouts(); ocean.setCount("shark", +ui.sharks.value); });
+ui.whale.addEventListener("input", () => { syncReadouts(); ocean.setWhalePopulation(+ui.whale.value); });
 for (const k of ["coral", "starfish"]) {
   ui[k].addEventListener("input", () => {
     syncReadouts();

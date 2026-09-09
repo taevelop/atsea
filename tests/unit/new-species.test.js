@@ -62,7 +62,7 @@ describe('six new species across the shared ocean and both views', () => {
     }
   });
 
-  it('scales all new populations, respawns them, and avoids spawning in a sea too small', () => {
+  it('scales new populations through their separate controls, respawns them, and respects initial space', () => {
     const sea = new Ocean(160, 200, 40);
     for (const kind of kinds) {
       expect(sea.groups[kind].length).toBeGreaterThan(0);
@@ -72,8 +72,11 @@ describe('six new species across the shared ocean and both views', () => {
       expect(sea.groups[kind][0].kind).toBe(kind);
     }
     sea.setPopulation(0);
+    expect(sea.groups.whale.length + sea.groups.dolphin.length).toBe(2);
+    sea.setWhalePopulation(0);
     for (const kind of kinds) expect(sea.groups[kind]).toHaveLength(0);
     sea.setPopulation(sea.base);
+    sea.setWhalePopulation(sea.seed.whale + sea.seed.dolphin);
     for (const kind of kinds) expect(sea.groups[kind].length).toBeGreaterThan(0);
     const small = new Ocean(16, 30, 20);
     small.setPopulation(1000);

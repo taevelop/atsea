@@ -27,14 +27,28 @@ describe('population and species identity', () => {
     expect(counts(sea)).toMatchObject({ fish: 184, shark: 4, jelly: 8, seahorse: 3, squid: 7, angler: 4, lantern: 57, octopus: 4, ray: 5, megalodon: 0 });
   });
 
-  it('scales all catchable species together while preserving separate shark control', () => {
+  it('scales all catchable species together while preserving separate shark and whale controls', () => {
     const sea = new Ocean(104, 200, 40);
     sea.setPopulation(92);
     expect(counts(sea)).toMatchObject({ fish: 92, shark: 4, jelly: 4, seahorse: 2, squid: 4, angler: 2, lantern: 29, octopus: 2, ray: 3 });
     sea.setPopulation(1);
     for (const kind of CATCHABLE) expect(sea.groups[kind]).toHaveLength(1);
     sea.setPopulation(400);
-    expect(counts(sea)).toMatchObject({ fish: 400, shark: 4, jelly: 17, seahorse: 7, squid: 15, angler: 9, lantern: 124, octopus: 9, ray: 11 });
+    expect(counts(sea)).toMatchObject({ fish: 400, shark: 4, whale: 1, dolphin: 1, jelly: 17, seahorse: 7, squid: 15, angler: 9, lantern: 124, octopus: 9, ray: 11 });
+  });
+
+  it('sets a bounded combined whale and dolphin total independently of fish and sharks', () => {
+    const sea = new Ocean(104, 200, 40);
+    for (const [requested, total] of [[0, 0], [1, 1], [5, 5], [12, 12], [1e9, 24], [-1, 0]]) {
+      sea.setWhalePopulation(requested);
+      expect(sea.groups.whale.length + sea.groups.dolphin.length).toBe(total);
+      expect(Math.abs(sea.groups.whale.length - sea.groups.dolphin.length)).toBeLessThanOrEqual(1);
+      expect(counts(sea)).toMatchObject({ fish: 184, shark: 4 });
+    }
+    sea.setWhalePopulation(5);
+    sea.setPopulation(0);
+    sea.setCount('shark', 0);
+    expect(sea.groups.whale.length + sea.groups.dolphin.length).toBe(5);
   });
 
   it('zero empties every catchable species without removing a visiting megalodon', () => {
