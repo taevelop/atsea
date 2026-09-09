@@ -5,7 +5,7 @@ export default defineConfig({
     host: '127.0.0.1',
     watch: {
       // Blender exports can hold files open on Windows. Only watch app/runtime assets.
-      ignored: ['**/.tools/**', '**/.cache/**', '**/assets/source/**', '**/test-results/**', '**/playwright-report/**', '**/docs/**', '**/atsea2d/**'],
+      ignored: ['**/.tools/**', '**/.cache/**', '**/assets/source/**', '**/dist-single/**', '**/test-results-single/**', '**/playwright-report-single/**', '**/test-results/**', '**/playwright-report/**', '**/docs/**', '**/atsea2d/**'],
     },
   },
   build: {
