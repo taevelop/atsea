@@ -135,33 +135,58 @@ def shrink_eyes(o,factor=.56):
   for i in ids:mesh.vertices[i].co=center+(mesh.vertices[i].co-center)*factor
 
 def add_source_details(key,arm):
+ # Ray-cast the rest surface, so animation does not transform the placement twice.
+ arm.data.pose_position='REST';bpy.context.view_layer.update()
  body=max((o for o in bpy.context.scene.objects if o.type=='MESH'),key=lambda o:len(o.data.vertices))
  points=[body.matrix_world@v.co for v in body.data.vertices]
  lo=Vector(tuple(min(v[i] for v in points) for i in range(3)));hi=Vector(tuple(max(v[i] for v in points) for i in range(3)));span=hi-lo
  eye=mat('Natural dark eyes','#0d2531',.12,.22)
+ iris=mat('Natural iris outline','#d5e4df',.05,.35)
  glow=mat('Lantern photophores','#82dede',.05,.35,1.5) if key=='lantern' else None
+ # Source axes: -Y forward, Z up. Place eyes ahead of gills and pectoral fins.
+ forward,height,radius_fraction={
+  'dolphin':(.15,.45,.016), 'whale':(.20,.70,.015),
+  'fish6':(.10,.54,.022), 'shark':(.12,.45,.012),
+  'megalodon':(.12,.45,.012),
+ }.get(key,(.12,.60,.020))
  added=[]
  for sign in [-1,1]:
   for index in range(7 if key=='lantern' else 1):
-   yy=lo.y+span.y*(.12 if index==0 else .22+index*.073)
-   zz=lo.z+span.z*((.45 if key in ('shark','megalodon') else .60) if index==0 else .36)
+   yy=lo.y+span.y*(forward if index==0 else .22+index*.073)
+   zz=lo.z+span.z*(height if index==0 else .36)
    origin=Vector((sign*(max(abs(lo.x),abs(hi.x))+10),yy,zz))
    inv=body.matrix_world.inverted();direction=Vector((-sign,0,0))
-   hit,loc,normal,_=body.ray_cast(inv@origin,(inv.to_3x3()@direction).normalized())
-   if not hit:continue
-   pos=body.matrix_world@loc;pos.x+=sign*.025
-   radius=span.y*(.011 if index==0 else .007)
-   part=uv('Eye' if index==0 else 'Photophore',pos,(radius*.38,radius,radius),eye if index==0 else glow,12,8)
-   bpy.context.view_layer.objects.active=part;bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
-   bone=min(arm.data.bones,key=lambda b:abs((arm.matrix_world@b.head_local).y-yy))
-   if index==0 and 'Face' in arm.data.bones:bone=arm.data.bones['Face']
-   group=part.vertex_groups.new(name=bone.name);group.add(list(range(len(part.data.vertices))),1,'REPLACE')
-   modifier=part.modifiers.new('Swim with source rig','ARMATURE');modifier.object=arm
-   added.append(part)
+   hit,loc,normal,face=body.ray_cast(inv@origin,(inv.to_3x3()@direction).normalized())
+   if not hit:
+    if index==0:raise RuntimeError(f'{key}: eye misses the head on side {sign}')
+    continue
+   pos=body.matrix_world@loc
+   radius=span.y*(radius_fraction if index==0 else .007)
+   surface_normal=(body.matrix_world.inverted().transposed().to_3x3()@normal).normalized()
+   if surface_normal.x*sign<0:surface_normal.negate()
+   parts=[]
+   if index==0:
+    # Raised pupils and a small light rim remain readable on dark individual skins.
+    rim=uv('Eye iris',pos+surface_normal*radius*.12,(radius*.40,radius*1.15,radius*1.15),iris,16,10)
+    pupil=uv('Eye',pos+surface_normal*radius*.38,(radius*.52,radius*.88,radius*.88),eye,16,10)
+    for part in (rim,pupil):part.rotation_euler=Vector((1,0,0)).rotation_difference(surface_normal).to_euler()
+    parts=[rim,pupil]
+   else:parts=[uv('Photophore',pos+surface_normal*radius*.25,(radius*.38,radius,radius),glow,12,8)]
+   nearest=min((body.data.vertices[i] for i in body.data.polygons[face].vertices),key=lambda v:(v.co-loc).length_squared)
+   weights=[(body.vertex_groups[g.group].name,g.weight) for g in nearest.groups if body.vertex_groups[g.group].name in arm.data.bones and g.weight>0]
+   if not weights:raise RuntimeError(f'{key}: head surface has no bone weights')
+   total=sum(weight for _,weight in weights)
+   for part in parts:
+    bpy.context.view_layer.objects.active=part;bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
+    for name,weight in weights:
+     group=part.vertex_groups.new(name=name);group.add(list(range(len(part.data.vertices))),weight/total,'REPLACE')
+    modifier=part.modifiers.new('Swim with source rig','ARMATURE');modifier.object=arm
+    added.append(part)
  if added:
   bpy.ops.object.select_all(action='DESELECT')
   for o in added:o.select_set(True)
   bpy.context.view_layer.objects.active=added[0];bpy.ops.object.join()
+ arm.data.pose_position='POSE';bpy.context.view_layer.update()
 
 
 def source_fish(key,file,colors,cute=False,stretch=(1,1,1)):

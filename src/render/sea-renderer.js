@@ -300,8 +300,8 @@ export class SeaRenderer {
         const id = kind === 'fish' ? being.guideId : kind;
         const centerX = being.x + being.w / 2;
         const centerY = -((Number.isFinite(being.yf) && kind !== 'sub' ? being.yf : being.y) + being.h / 2) * a;
-        // Shrimp keeps its ASCII footprint, but its 3D length matches the second-smallest fish.
-        const sizeScale = kind === 'shrimp' ? DATA.sizes.FISH[1].w / being.w : 1;
+        // Keep simulation footprints; halve the turtle and match shrimp to the second-smallest fish in 3D.
+        const sizeScale = kind === 'turtle' ? .5 : kind === 'shrimp' ? DATA.sizes.FISH[1].w / being.w : 1;
         const instance = this.acquire(being, id, being.w * sizeScale, being.h * a * sizeScale, centerX, centerY);
         instance.group.position.z = -2 - (Math.sin(instance.phase * 5.3) + 1) * 3;
         const yaw = being.dir < 0 ? Math.PI : 0;
