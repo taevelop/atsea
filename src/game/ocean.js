@@ -3,7 +3,7 @@ import { normalizeSetting, normalizePopulation } from './limits.js';
 
 const LURE = '#fff700', CHOMP = '#ff5f5f', ROD = '#ffaf00';
 const SPEED_DEFAULT = 20, GRACE = 21, HOLD_TIME = 84, HOOK_RATE = .70;
-const CHOMP_HOLD = 6, CHEW_TIME = 56, ALARM_TIME = CHEW_TIME;
+const CHOMP_HOLD = 6, CHOMP_LIFETIME = 3 * CHOMP_HOLD, CHEW_TIME = 56, ALARM_TIME = CHEW_TIME;
 const RARE_CHANCE = .006, RARE_COLOR = '#f2fbff', FLEE_FLOOR = .40;
 const MEGA_CHANCE = .003, BAIT_LIFE = 90, MEGA_COLOR = '#a8e6ff';
 const CATCHABLE = ['angler','ray','octopus','squid','jelly','seahorse','lantern','fish','crab','shrimp','oarfish'];
@@ -12,7 +12,7 @@ const RARE_KINDS = new Set([...CATCHABLE,'shark',...SIGHT_ONLY]);
 const rnd = (a,b) => a + Math.random() * (b-a);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const guideId = (kind,shapeIndex) => kind === 'fish' ? 'fish'+shapeIndex : kind;
-class Chomp { constructor(x,y) { this.x=x-2; this.y=y-1; this.age=0; } step(u) { this.age+=u; return this.age < 3*CHOMP_HOLD; } }
+class Chomp { constructor(x,y) { this.x=x-2; this.y=y-1; this.age=0; } step(u) { this.age+=u; return this.age < CHOMP_LIFETIME; } }
 class Alarm { constructor(fish,life=ALARM_TIME,mood) { this.fish=fish; this.age=0; this.life=life; this.mood=mood; } step(u) { this.age+=u; return this.age<this.life; } }
 
 const SPECIES = {
@@ -631,4 +631,4 @@ class Ocean {
 
 }
 
-export { Ocean, Being, Rod, FishingLine, Chomp, Alarm, DATA, SPECIES, CATCHABLE, SIGHT_ONLY, guideId, SPEED_DEFAULT, LURE, CHOMP, ROD, RARE_COLOR, MEGA_COLOR };
+export { Ocean, Being, Rod, FishingLine, Chomp, Alarm, DATA, SPECIES, CATCHABLE, SIGHT_ONLY, guideId, SPEED_DEFAULT, LURE, CHOMP, CHOMP_LIFETIME, ROD, RARE_COLOR, MEGA_COLOR };
