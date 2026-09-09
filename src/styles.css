@@ -22,9 +22,9 @@
     /* 이름표가 눈금 안쪽으로 들어오면서 열이 조금 넓어졌다. 74px 에서는
        midnight 이 잘린다. */
     --gauge-w: 104px;
-    /* 눈금이 계기 안에서 시작하고 끝나는 자리. 좁은 화면에서는 수심 숫자가
-       위로 올라오므로 그만큼 눈금을 아래에서 시작시킨다. */
-    --track-top: 18px;
+    /* 수심 숫자와 수역 이름을 계기 상단에 두고,
+       그 아래에서 눈금을 시작한다. */
+    --track-top: 54px;
     --track-bot: 18px;
     /* ---- 안전 영역 ----
        노치·둥근 모서리·홈 인디케이터가 먹는 띠. 바다는 그 아래까지 흘려보내고
@@ -104,7 +104,7 @@
   }
   .readout {
     position: absolute;
-    left: 0; right: var(--safe-r); bottom: calc(8px + var(--safe-b));
+    left: 0; right: var(--safe-r); top: calc(8px + var(--safe-t));
     text-align: center;
     pointer-events: none;
   }
@@ -353,11 +353,9 @@
       width: auto;
       max-height: calc(78vh - var(--safe-t) - var(--safe-b));
     }
-    /* 수심 숫자를 계기 위로 올린다. 아래에 두면 조작줄·홈 인디케이터와 겹겹이
-       쌓여 화면 밑동이 무거워지고, 손가락으로 계기를 훑을 때 가려지기도 한다.
-       올린 만큼 눈금은 아래에서 시작한다. */
+    /* 좁은 화면에서는 수심 표시를 작게 줄이고,
+       눈금 시작점도 표시 크기에 맞춰 올린다. */
     :root { --track-top: 44px; }
-    .readout { top: calc(8px + var(--safe-t)); bottom: auto; }
     .readout .m { font-size: 13px; }
     .readout .z { font-size: 8px; letter-spacing: 0; }
     .ctl input[type="range"] { width: 62px; }
@@ -1149,7 +1147,7 @@
 .sea-surface canvas { position:absolute; inset:0; }
 .sea-surface canvas[hidden] { display:none; }
 body.rod .sea-surface { cursor:crosshair; }
-#btn-view { flex-shrink:0; min-width:44px; }
+#btn-view { margin-left:auto; flex-shrink:0; min-width:44px; }
 /* The title and view controls float over the full sea only while awake. */
 body.bare .bar--top { display:flex; position:fixed; inset:0 0 auto; z-index:7; padding-right:max(14px,var(--safe-r)); background:rgba(6,13,22,.9); opacity:0; pointer-events:none; transition:opacity .3s ease; }
 body.bare.awake .bar--top, body.bare .bar--top:focus-within { opacity:1; pointer-events:auto; }
