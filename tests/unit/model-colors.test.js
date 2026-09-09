@@ -170,7 +170,7 @@ describe('3D colors on real model assets', () => {
     expect(material(instance, 'Top')).toBe(material(create('fish1'), 'Top'));
   });
 
-  it('draws 3D shrimp at the second-smallest fish length while retaining its ASCII footprint', () => {
+  it('draws 3D shrimp at twice the second-smallest fish length while retaining its ASCII footprint', () => {
     const renderer = Object.assign(Object.create(SeaRenderer.prototype), {
       library, instances: new Map(), pool: new Map(), world: new THREE.Group(),
       aspect: 2, metrics: {},
@@ -181,7 +181,7 @@ describe('3D colors on real model assets', () => {
     const ocean = { w: 160, floorY: 1000, groups: { fish: [smallest, next], shrimp: [shrimp] }, subs: [] };
     renderer.syncOcean({ ocean, cam: 0, rows: 40, clock: 0 });
     const width = being => { const i = renderer.instances.get(being); return i.size.x * i.pivot.scale.x; };
-    expect(width(shrimp)).toBeCloseTo(width(next), 5);
+    expect(width(shrimp)).toBeCloseTo(width(next) * 2, 5);
     expect(width(shrimp)).toBeGreaterThan(width(smallest));
     expect(shrimp.w).toBe(22);
     expect(renderer.instances.get(shrimp).group.position.x).toBe(shrimp.x + shrimp.w / 2);
