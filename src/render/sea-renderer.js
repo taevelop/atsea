@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ModelLibrary } from './model-library.js';
 import { DATA } from '../game/data.js';
 import { ChompEffects } from './chomp-effects.js';
+import { AnglerSeabedLight } from './angler-seabed-light.js';
 
 const clamp = THREE.MathUtils.clamp;
 const TEMP = new THREE.Object3D();
@@ -108,6 +109,7 @@ export class SeaRenderer {
   texture(value) { this.ownedTextures.add(value); return value; }
 
   clearWorld() {
+    this.anglerSeabedLight = null;
     this.chompEffects?.dispose();
     this.megaIndicator?.material.map?.dispose();
     this.megaLabel = null;
@@ -184,6 +186,7 @@ export class SeaRenderer {
       vertexColors: true, color: '#b2b6a0', roughness: .9, side: THREE.DoubleSide,
     })));
     this.ground.position.set(cols / 2, -(depth - .4) * a, -16);
+    this.anglerSeabedLight = new AnglerSeabedLight(this.ground);
     this.world.add(this.ground);
 
     // Distant outcrops are actual 3D meshes, with space left open for swimming and aiming.
@@ -448,6 +451,7 @@ export class SeaRenderer {
     particlePos.needsUpdate = true;
     this.particles.geometry.computeBoundingSphere();
     this.syncOcean(state);
+    this.anglerSeabedLight.update(this.instances.values());
     this.updateEffects(state);
     this.metrics.frames++; this.frameSamples++;
     const now = performance.now(), elapsed = now - this.lastMetricsAt;
