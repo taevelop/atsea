@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 test('extreme saved settings stay bounded through view changes and reload', async ({ page }) => {
   await page.addInitScript(() => {
     if (!localStorage.getItem('atsea.sliders')) {
-      localStorage.setItem('atsea.sliders', JSON.stringify({ fish: 1e9, sharks: 1e9, coral: 1e9, starfish: 1e9, seaweed: 1e9, speed: 1e9 }));
+      localStorage.setItem('atsea.sliders', JSON.stringify({ fish: 1e9, sharks: 1e9, whale: 1e9, coral: 1e9, starfish: 1e9, seaweed: 1e9, speed: 1e9 }));
       localStorage.setItem('atsea.view', '2d');
       localStorage.setItem('atsea.guide', JSON.stringify({ fish0: 1000000 }));
     }
@@ -12,7 +12,7 @@ test('extreme saved settings stay bounded through view changes and reload', asyn
   await page.goto('/');
   await page.waitForFunction(() => window.__ATSEA__?.snapshot().renderMode === '2d');
   await page.locator('#btn-pause').click();
-  const limits = { fish: 1000, sharks: 24, coral: 28, starfish: 28, seaweed: 100, speed: 60 };
+  const limits = { fish: 1000, sharks: 24, whale: 24, coral: 28, starfish: 28, seaweed: 100, speed: 60 };
   for (const [key, max] of Object.entries(limits)) {
     await expect(page.locator('#' + key)).toHaveValue(String(max));
     expect(Number(await page.locator('#' + key).getAttribute('max'))).toBeLessThanOrEqual(max);
