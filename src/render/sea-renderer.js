@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ModelLibrary } from './model-library.js';
 import { DATA } from '../game/data.js';
+import { ChompEffects } from './chomp-effects.js';
 
 const clamp = THREE.MathUtils.clamp;
 const TEMP = new THREE.Object3D();
@@ -107,6 +108,7 @@ export class SeaRenderer {
   texture(value) { this.ownedTextures.add(value); return value; }
 
   clearWorld() {
+    this.chompEffects?.dispose();
     this.megaIndicator?.material.map?.dispose();
     this.megaLabel = null;
     for (const instance of this.instances.values()) this.library.release(instance);
@@ -241,12 +243,8 @@ export class SeaRenderer {
     this.alarmMaterial = this.material(new THREE.SpriteMaterial({ map: this.texture(labelTexture('!', '#ffe8a8')), depthTest: false }));
     this.angryMaterial = this.material(new THREE.SpriteMaterial({ map: this.texture(labelTexture('!', '#ff8973')), depthTest: false }));
     this.alarmSprites = [];
-    this.bursts = new THREE.InstancedMesh(
-      this.geometry(new THREE.TorusGeometry(1, .08, 6, 20)),
-      this.material(new THREE.MeshBasicMaterial({color: '#ff9178', transparent: true, opacity: .65, depthWrite: false})), 64,
-    );
-    this.bursts.frustumCulled = false;
-    this.world.add(this.bursts);
+    this.chompEffects = new ChompEffects();
+    this.world.add(this.chompEffects);
     this.bait = new THREE.Mesh(this.geometry(new THREE.IcosahedronGeometry(.55, 1)), this.material(new THREE.MeshStandardMaterial({
       color: '#ffda69', emissive: '#e9af25', emissiveIntensity: 1.2, roughness: .5,
     })));
@@ -383,15 +381,7 @@ export class SeaRenderer {
       sprite.position.set(x, -Math.max(cam + 1, fish.y - 1.5) * a, 10);
       sprite.scale.set(3.5, 2.2, 1);
     });
-    count = 0;
-    for (const chomp of ocean.chomps) {
-      if (count >= 64) break;
-      const size = .6 + chomp.age * .055;
-      TEMP.position.set(chomp.x + 2, -(chomp.y + 1) * a, 6);
-      TEMP.rotation.set(0, 0, 0); TEMP.scale.set(size, size, size);
-      TEMP.updateMatrix(); this.bursts.setMatrixAt(count++, TEMP.matrix);
-    }
-    this.bursts.count = count; this.bursts.instanceMatrix.needsUpdate = true;
+    this.chompEffects.update(ocean.chomps, { aspect: a, cam, rows });
     this.bait.visible = !!ocean.bait;
     if (ocean.bait) { this.bait.position.set(ocean.bait.x, -ocean.bait.y * a, 8); this.bait.rotation.set(clock, clock * .7, 0); }
     const mega = ocean.groups.megalodon?.[0];
